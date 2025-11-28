@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System Mockup | College Counseling Platform</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ============================================
+       CSS CUSTOM PROPERTIES
+    ============================================ */
+    :root {
+      /* Colors - Dark Mode (default) */
+      --color-bg: #09090B;
+      --color-surface: #18181B;
+      --color-surface-elevated: #1f1f23;
+      --color-border: #27272A;
+      --color-border-hover: #3f3f46;
+      --color-text: #FAFAFA;
+      --color-text-secondary: #A1A1AA;
+      --color-text-tertiary: #71717A;
+      
+      --color-accent: #F97316;
+      --color-accent-hover: #ea580c;
+      --color-accent-subtle: rgba(249, 115, 22, 0.15);
+      --color-secondary: #06B6D4;
+      --color-secondary-subtle: rgba(6, 182, 212, 0.15);
+      --color-success: #22C55E;
+      --color-success-subtle: rgba(34, 197, 94, 0.15);
+      --color-warning: #EAB308;
+      --color-warning-subtle: rgba(234, 179, 8, 0.15);
+      --color-error: #EF4444;
+      --color-error-subtle: rgba(239, 68, 68, 0.15);
+      --color-info: #3B82F6;
+      
+      /* Typography */
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Spacing */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-20: 80px;
+      
+      /* Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+      --shadow-glow: 0 0 24px rgba(249,115,22,0.25);
+      --shadow-glow-cyan: 0 0 24px rgba(6,182,212,0.25);
+    }
+
+    /* Light mode */
+    [data-theme="light"] {
+      --color-bg: #FAFAFA;
+      --color-surface: #FFFFFF;
+      --color-surface-elevated: #FFFFFF;
+      --color-border: #E4E4E7;
+      --color-border-hover: #d4d4d8;
+      --color-text: #09090B;
+      --color-text-secondary: #71717A;
+      --color-text-tertiary: #a1a1aa;
+      
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    /* ============================================
+       BASE STYLES
+    ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--color-text);
+      background-color: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ============================================
+       LAYOUT
+    ============================================ */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--space-6);
+    }
+
+    .section {
+      padding: var(--space-16) 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--color-accent);
+      margin-bottom: var(--space-8);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ============================================
+       TYPOGRAPHY
+    ============================================ */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--color-text);
+    }
+
+    .display { font-size: 72px; font-weight: 800; line-height: 1.1; }
+    h1, .h1 { font-size: 48px; }
+    h2, .h2 { font-size: 36px; }
+    h3, .h3 { font-size: 24px; font-weight: 600; }
+    h4, .h4 { font-size: 20px; font-weight: 600; }
+    
+    .body-large { font-size: 18px; }
+    .body { font-size: 16px; }
+    .body-small { font-size: 14px; }
+    .caption { font-size: 12px; font-weight: 500; }
+    
+    .mono { font-family: var(--font-mono); }
+    .text-secondary { color: var(--color-text-secondary); }
+    .text-accent { color: var(--color-accent); }
+    .text-cyan { color: var(--color-secondary); }
+
+    /* ============================================
+       HEADER & NAVIGATION
+    ============================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-4) 0;
+    }
+
+    [data-theme="light"] .header {
+      background: rgba(250, 250, 250, 0.8);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--color-text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--color-accent), var(--color-secondary));
+      border-radius: var(--radius-md);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+
+    .nav-link {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .nav-link:hover {
+      color: var(--color-text);
+    }
+
+    .theme-toggle {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-full);
+      padding: var(--space-2) var(--space-3);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      transition: all 150ms ease;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--color-border-hover);
+      color: var(--color-text);
+    }
+
+    /* ============================================
+       BUTTONS
+    ============================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 150ms ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-accent-hover);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-border-hover);
+      background: var(--color-surface);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-text-secondary);
+    }
+
+    .btn-ghost:hover {
+      color: var(--color-text);
+      background: var(--color-surface);
+    }
+
+    .btn-danger {
+      background: var(--color-error);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-lg {
+      padding: var(--space-4) var(--space-8);
+      font-size: 16px;
+    }
+
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      font-size: 13px;
+    }
+
+    /* ============================================
+       CARDS
+    ============================================ */
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      transition: border-color 200ms ease, box-shadow 200ms ease;
+    }
+
+    .card:hover {
+      border-color: var(--color-border-hover);
+    }
+
+    .card-elevated {
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-interactive:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================
+       BADGES
+    ============================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: 12px;
+      font-weight: 500;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+    }
+
+    .badge-accent {
+      background: var(--color-accent-subtle);
+      color: var(--color-accent);
+    }
+
+    .badge-cyan {
+      background: var(--color-secondary-subtle);
+      color: var(--color-secondary);
+    }
+
+    .badge-success {
+      background: var(--color-success-subtle);
+      color: var(--color-success);
+    }
+
+    .badge-warning {
+      background: var(--color-warning-subtle);
+      color: var(--color-warning);
+    }
+
+    .badge-error {
+      background: var(--color-error-subtle);
+      color: var(--color-error);
+    }
+
+    /* ============================================
+       FORM ELEMENTS
+    ============================================ */
+    .input {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 14px;
+      padding: var(--space-3) var(--space-4);
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px var(--color-accent-subtle);
+    }
+
+    .input::placeholder {
+      color: var(--color-text-tertiary);
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .input-group {
+      margin-bottom: var(--space-5);
+    }
+
+    /* ============================================
+       DATA DISPLAY
+    ============================================ */
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 48px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--color-text);
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-2);
+    }
+
+    .stat-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: var(--space-2);
+    }
+
+    .stat-trend.up { color: var(--color-success); }
+    .stat-trend.down { color: var(--color-error); }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--color-border);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: var(--radius-full);
+      transition: width 500ms ease;
+    }
+
+    .progress-fill.cyan { background: var(--color-secondary); }
+    .progress-fill.success { background: var(--color-success); }
+
+    /* ============================================
+       ALERTS & NOTIFICATIONS
+    ============================================ */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+    }
+
+    .alert-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+    }
+
+    .alert-warning {
+      background: var(--color-warning-subtle);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      color: var(--color-warning);
+    }
+
+    .alert-success {
+      background: var(--color-success-subtle);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: var(--color-success);
+    }
+
+    .alert-error {
+      background: var(--color-error-subtle);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--color-error);
+    }
+
+    .notification {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-title {
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+
+    .notification-body {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+      font-family: var(--font-mono);
+    }
+
+    /* ============================================
+       COLOR SWATCHES
+    ============================================ */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-4);
+    }
+
+    .swatch {
+      text-align: center;
+    }
+
+    .swatch-color {
+      width: 100%;
+      height: 80px;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-2);
+      border: 1px solid var(--color-border);
+    }
+
+    .swatch-name {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .swatch-hex {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .hero {
+      padding: var(--space-20) 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 150%;
+      height: 100%;
+      background: radial-gradient(ellipse at center top, var(--color-accent-subtle) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: var(--space-6);
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--color-text-secondary);
+      margin-bottom: var(--space-8);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: var(--space-4);
+      justify-content: center;
+    }
+
+    .highlight {
+      background: linear-gradient(90deg, var(--color-accent), var(--color-secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ============================================
+       WIDGET EXAMPLES
+    ============================================ */
+    .deadline-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      transition: all 150ms ease;
+    }
+
+    .deadline-card:hover {
+      border-color: var(--color-border-hover);
+    }
+
+    .deadline-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .deadline-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--color-warning-subtle);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-warning);
+    }
+
+    .deadline-name {
+      font-weight: 600;
+    }
+
+    .deadline-school {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .deadline-date {
+      text-align: right;
+    }
+
+    .deadline-days {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--color-warning);
+    }
+
+    .deadline-label {
+      font-size: 12px;
+      color: var(--color-text-tertiary);
+    }
+
+    .opportunity-card {
+      border-left: 3px solid var(--color-accent);
+    }
+
+    .opportunity-match {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .match-score {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-success);
+    }
+
+    .college-card {
+      display: flex;
+      gap: var(--space-4);
+    }
+
+    .college-logo {
+      width: 56px;
+      height: 56px;
+      background: var(--color-border);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+
+    .college-info {
+      flex: 1;
+    }
+
+    .college-name {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .college-location {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+    }
+
+    .college-stats {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-3);
+    }
+
+    .college-stat {
+      font-size: 13px;
+    }
+
+    .college-stat-value {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--color-accent);
+    }
+
+    .chance-meter {
+      margin-top: var(--space-4);
+    }
+
+    .chance-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: var(--space-2);
+    }
+
+    .chance-value {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* ============================================
+       ANIMATIONS
+    ============================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      animation: fadeIn 500ms ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 100ms; }
+    .delay-2 { animation-delay: 200ms; }
+    .delay-3 { animation-delay: 300ms; }
+    .delay-4 { animation-delay: 400ms; }
+
+    /* ============================================
+       UTILITY CLASSES
+    ============================================ */
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: var(--space-2); }
+    .gap-4 { gap: var(--space-4); }
+    .gap-6 { gap: var(--space-6); }
+    .mt-2 { margin-top: var(--space-2); }
+    .mt-4 { margin-top: var(--space-4); }
+    .mt-6 { margin-top: var(--space-6); }
+    .mb-4 { margin-bottom: var(--space-4); }
+    .mb-6 { margin-bottom: var(--space-6); }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="#" class="logo">
+          <div class="logo-mark"></div>
+          Pathwise
+        </a>
+        <nav class="nav">
+          <a href="#colors" class="nav-link">Colors</a>
+          <a href="#typography" class="nav-link">Typography</a>
+          <a href="#components" class="nav-link">Components</a>
+          <a href="#widgets" class="nav-link">Widgets</a>
+          <button class="theme-toggle" onclick="toggleTheme()">◐ Theme</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section Example -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>The college process is <span class="highlight">chaos.</span><br>We fix that.</h1>
+        <p class="hero-subtitle">One platform. Everything you need—programs, deadlines, strategy—personalized to you. No more 47 open tabs.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary btn-lg">Get started free</button>
+          <button class="btn btn-secondary btn-lg">See how it works</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Color Palette -->
+  <section class="section" id="colors">
+    <div class="container">
+      <div class="section-title">Color Palette</div>
+      
+      <h3 class="mb-6">Primary Colors</h3>
+      <div class="swatch-grid mb-6">
+        <div class="swatch">
+          <div class="swatch-color" style="background: #09090B;"></div>
+          <div class="swatch-name">Ink</div>
+          <div class="swatch-hex">#09090B</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #18181B;"></div>
+          <div class="swatch-name">Surface</div>
+          <div class="swatch-hex">#18181B</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #27272A;"></div>
+          <div class="swatch-name">Border</div>
+          <div class="swatch-hex">#27272A</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #F97316;"></div>
+          <div class="swatch-name">Coral (Accent)</div>
+          <div class="swatch-hex">#F97316</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #06B6D4;"></div>
+          <div class="swatch-name">Cyan</div>
+          <div class="swatch-hex">#06B6D4</div>
+        </div>
+      </div>
+
+      <h3 class="mb-6">Semantic Colors</h3>
+      <div class="swatch-grid">
+        <div class="swatch">
+          <div class="swatch-color" style="background: #22C55E;"></div>
+          <div class="swatch-name">Success</div>
+          <div class="swatch-hex">#22C55E</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #EAB308;"></div>
+          <div class="swatch-name">Warning</div>
+          <div class="swatch-hex">#EAB308</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #EF4444;"></div>
+          <div class="swatch-name">Error</div>
+          <div class="swatch-hex">#EF4444</div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background: #3B82F6;"></div>
+          <div class="swatch-name">Info</div>
+          <div class="swatch-hex">#3B82F6</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section class="section" id="typography">
+    <div class="container">
+      <div class="section-title">Typography</div>
+      
+      <div class="card mb-6">
+        <p class="caption text-secondary mb-4">DISPLAY — Outfit 800</p>
+        <p class="display">The complete strategy hub.</p>
+      </div>
+
+      <div class="card mb-6">
+        <p class="caption text-secondary mb-4">H1 — Outfit 700</p>
+        <h1>Your path to college, mapped.</h1>
+      </div>
+
+      <div class="card mb-6">
+        <p class="caption text-secondary mb-4">H2 — Outfit 700</p>
+        <h2>Everything in one place</h2>
+      </div>
+
+      <div class="card mb-6">
+        <p class="caption text-secondary mb-4">H3 — Outfit 600</p>
+        <h3>Deadlines, opportunities, strategy</h3>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <p class="caption text-secondary mb-4">BODY LARGE — DM Sans 400</p>
+          <p class="body-large">College prep shouldn't mean 47 open tabs, missed deadlines, and family stress. We bring everything together.</p>
+        </div>
+        <div class="card">
+          <p class="caption text-secondary mb-4">BODY — DM Sans 400</p>
+          <p class="body">Students with your profile who added summer research saw a 23% increase in acceptance rates at target schools.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-3 mt-6">
+        <div class="card">
+          <p class="caption text-secondary mb-4">MONO DATA — JetBrains Mono 600</p>
+          <p class="mono" style="font-size: 32px; font-weight: 600;">1,520</p>
+          <p class="body-small text-secondary">SAT Score</p>
+        </div>
+        <div class="card">
+          <p class="caption text-secondary mb-4">MONO DATE — JetBrains Mono 500</p>
+          <p class="mono" style="font-size: 20px; font-weight: 500;">Jan 15, 2025</p>
+          <p class="body-small text-secondary">Application Deadline</p>
+        </div>
+        <div class="card">
+          <p class="caption text-secondary mb-4">MONO PERCENTAGE — JetBrains Mono 600</p>
+          <p class="mono text-accent" style="font-size: 24px; font-weight: 600;">78%</p>
+          <p class="body-small text-secondary">Profile Complete</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Components -->
+  <section class="section" id="components">
+    <div class="container">
+      <div class="section-title">Components</div>
+      
+      <!-- Buttons -->
+      <h3 class="mb-4">Buttons</h3>
+      <div class="card mb-6">
+        <div class="flex gap-4 items-center" style="flex-wrap: wrap;">
+          <button class="btn btn-primary">Primary Action</button>
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-ghost">Ghost</button>
+          <button class="btn btn-danger">Danger</button>
+        </div>
+        <div class="flex gap-4 items-center mt-4" style="flex-wrap: wrap;">
+          <button class="btn btn-primary btn-lg">Large Button</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-sm">Small</button>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <h3 class="mb-4">Badges</h3>
+      <div class="card mb-6">
+        <div class="flex gap-4 items-center" style="flex-wrap: wrap;">
+          <span class="badge badge-accent">Featured</span>
+          <span class="badge badge-cyan">New Match</span>
+          <span class="badge badge-success">Complete</span>
+          <span class="badge badge-warning">Due Soon</span>
+          <span class="badge badge-error">Overdue</span>
+        </div>
+      </div>
+
+      <!-- Inputs -->
+      <h3 class="mb-4">Form Elements</h3>
+      <div class="card mb-6">
+        <div class="grid grid-2">
+          <div class="input-group">
+            <label class="label">Email Address</label>
+            <input type="email" class="input" placeholder="you@example.com">
+          </div>
+          <div class="input-group">
+            <label class="label">Target SAT Score</label>
+            <input type="text" class="input" placeholder="1400-1600">
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts -->
+      <h3 class="mb-4">Alerts</h3>
+      <div class="flex flex-col gap-4 mb-6">
+        <div class="alert alert-warning">
+          <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <div><strong>UC deadline in 5 days.</strong> Your essays are 80% complete. Let's finish strong.</div>
+        </div>
+        <div class="alert alert-success">
+          <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          <div><strong>Application submitted.</strong> Stanford received your application. Good luck.</div>
+        </div>
+        <div class="alert alert-error">
+          <svg class="alert-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+          <div><strong>MIT: Not this time.</strong> Your other applications are still active. Stay focused.</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <h3 class="mb-4">Statistics Display</h3>
+      <div class="grid grid-4 mb-6">
+        <div class="card stat">
+          <div class="stat-value text-accent">92%</div>
+          <div class="stat-label">Profile Complete</div>
+          <div class="stat-trend up">↑ 8% this week</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value">1,520</div>
+          <div class="stat-label">SAT Score</div>
+          <div class="stat-trend up">↑ 60 from practice</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value text-cyan">14</div>
+          <div class="stat-label">Opportunities Matched</div>
+          <div class="stat-trend up">↑ 3 new this week</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Schools on List</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Widget Examples -->
+  <section class="section" id="widgets">
+    <div class="container">
+      <div class="section-title">Widget Examples</div>
+      
+      <!-- Deadline Cards -->
+      <h3 class="mb-4">Deadline Tracker</h3>
+      <div class="flex flex-col gap-4 mb-6">
+        <div class="deadline-card">
+          <div class="deadline-info">
+            <div class="deadline-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <div class="deadline-name">Regular Decision Application</div>
+              <div class="deadline-school">Stanford University</div>
+            </div>
+          </div>
+          <div class="deadline-date">
+            <div class="deadline-days">5</div>
+            <div class="deadline-label">days left</div>
+          </div>
+        </div>
+        <div class="deadline-card">
+          <div class="deadline-info">
+            <div class="deadline-icon" style="background: var(--color-error-subtle); color: var(--color-error);">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div>
+              <div class="deadline-name">Financial Aid Application</div>
+              <div class="deadline-school">UC Berkeley</div>
+            </div>
+          </div>
+          <div class="deadline-date">
+            <div class="deadline-days" style="color: var(--color-error);">2</div>
+            <div class="deadline-label">days left</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Opportunity Card -->
+      <h3 class="mb-4">Opportunity Match</h3>
+      <div class="grid grid-2 mb-6">
+        <div class="card opportunity-card">
+          <div class="flex justify-between items-center mb-4">
+            <span class="badge badge-accent">New Match</span>
+            <span class="mono body-small text-secondary">Deadline: Mar 15</span>
+          </div>
+          <h4>Stanford SIMR</h4>
+          <p class="body-small text-secondary mt-2">8-week summer research program in STEM fields. Housing and stipend included.</p>
+          <div class="opportunity-match">
+            <span class="match-score">94% match</span>
+            <span class="body-small text-secondary">Based on your profile</span>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button class="btn btn-primary btn-sm">Apply Now</button>
+            <button class="btn btn-ghost btn-sm">Learn More</button>
+          </div>
+        </div>
+        <div class="card opportunity-card">
+          <div class="flex justify-between items-center mb-4">
+            <span class="badge badge-cyan">Research</span>
+            <span class="mono body-small text-secondary">Deadline: Apr 1</span>
+          </div>
+          <h4>MIT PRIMES</h4>
+          <p class="body-small text-secondary mt-2">Year-long research program for high school students in mathematics and computer science.</p>
+          <div class="opportunity-match">
+            <span class="match-score">87% match</span>
+            <span class="body-small text-secondary">Based on your profile</span>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <button class="btn btn-primary btn-sm">Apply Now</button>
+            <button class="btn btn-ghost btn-sm">Learn More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- College Cards -->
+      <h3 class="mb-4">College List</h3>
+      <div class="grid grid-2 mb-6">
+        <div class="card">
+          <div class="college-card">
+            <div class="college-logo"></div>
+            <div class="college-info">
+              <div class="college-name">MIT</div>
+              <div class="college-location">Cambridge, MA</div>
+              <div class="college-stats">
+                <div class="college-stat">
+                  <span class="college-stat-value">4%</span> admit
+                </div>
+                <div class="college-stat">
+                  <span class="college-stat-value">$82k</span> cost
+                </div>
+              </div>
+            </div>
+            <span class="badge badge-warning">Reach</span>
+          </div>
+          <div class="chance-meter">
+            <div class="chance-label">
+              <span class="text-secondary">Your chances</span>
+              <span class="chance-value text-warning">18%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 18%; background: var(--color-warning);"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="college-card">
+            <div class="college-logo"></div>
+            <div class="college-info">
+              <div class="college-name">UC Berkeley</div>
+              <div class="college-location">Berkeley, CA</div>
+              <div class="college-stats">
+                <div class="college-stat">
+                  <span class="college-stat-value">11%</span> admit
+                </div>
+                <div class="college-stat">
+                  <span class="college-stat-value">$44k</span> cost
+                </div>
+              </div>
+            </div>
+            <span class="badge badge-accent">Target</span>
+          </div>
+          <div class="chance-meter">
+            <div class="chance-label">
+              <span class="text-secondary">Your chances</span>
+              <span class="chance-value text-accent">42%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 42%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notification Examples -->
+      <h3 class="mb-4">Notifications</h3>
+      <div class="flex flex-col gap-4">
+        <div class="notification">
+          <div class="notification-icon" style="background: var(--color-success-subtle);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--color-success)">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">SAT scores just dropped</div>
+            <div class="notification-body">1520. That's not just good—that opens doors at every school on your list.</div>
+          </div>
+          <div class="notification-time">2m ago</div>
+        </div>
+        <div class="notification">
+          <div class="notification-icon" style="background: var(--color-accent-subtle);">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="var(--color-accent)">
+              <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+            </svg>
+          </div>
+          <div class="notification-content">
+            <div class="notification-title">This fits you: Stanford SIMR</div>
+            <div class="notification-body">8-week STEM research program. Deadline March 15. Application takes ~30 minutes.</div>
+          </div>
+          <div class="notification-time">1h ago</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Example -->
+  <footer style="padding: var(--space-12) 0; border-top: 1px solid var(--color-border); text-align: center;">
+    <div class="container">
+      <p class="text-secondary body-small">Design System Mockup — College Counseling Platform</p>
+      <p class="text-secondary body-small mt-2">Built with confidence. No fluff.</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+  </script>
+</body>
+</html>
+
