@@ -1,0 +1,781 @@
+// Sesame3 Database Schema
+// Using Prisma with PostgreSQL (Supabase)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // For migrations (Supabase pooling)
+}
+
+// =============================================================================
+// LAYER 1: IDENTITY & AUTH
+// =============================================================================
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  
+  // Auth metadata (Supabase handles actual auth)
+  authProvider String?  // "email" | "google" | "apple"
+  
+  // Preferences
+  preferences Json?    // { theme, notifications, etc. }
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  studentProfile    StudentProfile?
+  accessGrantsGiven AccessGrant[]    @relation("GrantedBy")
+  accessGrantsReceived AccessGrant[] @relation("GrantedTo")
+  
+  // Future: Organization membership
+  organizationMemberships OrganizationMember[]
+}
+
+// =============================================================================
+// LAYER 2: STUDENT PROFILE (Core Data)
+// =============================================================================
+
+model StudentProfile {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  firstName      String
+  lastName       String?
+  preferredName  String?   // What they want to be called
+  
+  // Academic Context
+  grade           String?   // "9th" | "10th" | "11th" | "12th" | "gap_year"
+  graduationYear  Int?
+  highSchoolName  String?
+  highSchoolCity  String?
+  highSchoolState String?
+  highSchoolType  String?   // "public" | "private" | "charter" | "homeschool"
+  
+  // Onboarding State
+  onboardingCompletedAt DateTime?
+  onboardingData        Json?     // Captured during onboarding flow
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations - Profile Components
+  aboutMe     AboutMe?
+  academics   Academics?
+  testing     Testing?
+  courses     Course[]
+  activities  Activity[]
+  awards      Award[]
+  programs    Program[]
+  
+  // Relations - Planning
+  goals           Goal[]
+  schoolList      StudentSchool[]
+  
+  // Relations - AI
+  conversations   Conversation[]
+  studentContext  StudentContext?
+  
+  // Relations - Access Control
+  accessGrants AccessGrant[]
+  
+  @@index([userId])
+}
+
+// -----------------------------------------------------------------------------
+// About Me - Personal Narrative
+// -----------------------------------------------------------------------------
+
+model AboutMe {
+  id               String @id @default(uuid())
+  studentProfileId String @unique
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Personal Story
+  story       String?   // Free-form narrative
+  
+  // Identity
+  values      String[]  // ["curiosity", "equity", "creativity"]
+  interests   String[]  // ["robotics", "philosophy", "music"]
+  personality String?   // "curious introvert who loves teaching"
+  
+  // Background
+  background   String?  // Family, cultural context
+  aspirations  String?  // What they want to become
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// Academics - GPA & Overview
+// -----------------------------------------------------------------------------
+
+model Academics {
+  id               String @id @default(uuid())
+  studentProfileId String @unique
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // GPA
+  gpaUnweighted    Float?   // 0.0 - 4.0
+  gpaWeighted      Float?   // Can be > 4.0
+  gpaScale         Float?   // Usually 4.0 or 5.0
+  
+  // Class Standing
+  classRank        Int?
+  classSize        Int?
+  
+  // Course Rigor Summary (auto-calculated or manual)
+  apCourseCount       Int?
+  honorsCourseCount   Int?
+  collegeCourseCount  Int?  // Dual enrollment
+  
+  // Transcript
+  transcriptUrl    String?  // If uploaded
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// Courses - Individual Classes (Completed, In-Progress, Planned)
+// -----------------------------------------------------------------------------
+
+model Course {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Course Info
+  name        String    // "AP Calculus BC"
+  subject     String?   // "Math" | "Science" | "English" | "History" | "Language" | "Arts" | "Other"
+  
+  // Rigor Level
+  level       String?   // "regular" | "honors" | "ap" | "ib" | "college" | "other"
+  
+  // Temporal Status
+  status      String    // "completed" | "in_progress" | "planned"
+  
+  // When
+  academicYear  String?   // "2023-2024"
+  semester      String?   // "fall" | "spring" | "full_year" | "summer"
+  gradeLevel    String?   // "9th" | "10th" | "11th" | "12th" - when they took/will take it
+  
+  // Performance (for completed/in-progress)
+  grade         String?   // "A" | "A-" | "B+" etc. or null if planned
+  gradeNumeric  Float?    // 4.0, 3.7, etc.
+  
+  // For planned courses - why they want to take it
+  planningNotes String?
+  
+  // Metadata
+  isCore        Boolean @default(false)  // Core subject vs elective
+  credits       Float?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([studentProfileId])
+  @@index([status])
+}
+
+// -----------------------------------------------------------------------------
+// Testing - Standardized Test Scores
+// -----------------------------------------------------------------------------
+
+model Testing {
+  id               String @id @default(uuid())
+  studentProfileId String @unique
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // SAT
+  satTotal        Int?      // 400-1600
+  satMath         Int?      // 200-800
+  satReading      Int?      // 200-800
+  satEssay        Int?      // If applicable
+  satDate         DateTime?
+  satSuperscored  Boolean   @default(false)
+  
+  // ACT
+  actComposite    Int?      // 1-36
+  actEnglish      Int?
+  actMath         Int?
+  actReading      Int?
+  actScience      Int?
+  actWriting      Int?
+  actDate         DateTime?
+  actSuperscored  Boolean   @default(false)
+  
+  // PSAT/NMSQT
+  psatTotal       Int?
+  psatDate        DateTime?
+  nmsqtQualified  Boolean?
+  
+  // Test Plans (for advising)
+  planningToTakeSat     Boolean @default(false)
+  planningToTakeAct     Boolean @default(false)
+  plannedSatDate        DateTime?
+  plannedActDate        DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Related scores
+  apScores      APScore[]
+  subjectTests  SubjectTest[]
+}
+
+model APScore {
+  id        String  @id @default(uuid())
+  testingId String
+  testing   Testing @relation(fields: [testingId], references: [id], onDelete: Cascade)
+  
+  subject   String    // "Calculus BC", "Physics C: Mechanics"
+  score     Int       // 1-5
+  year      Int?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([testingId])
+}
+
+model SubjectTest {
+  id        String  @id @default(uuid())
+  testingId String
+  testing   Testing @relation(fields: [testingId], references: [id], onDelete: Cascade)
+  
+  subject   String    // "Math Level 2", "Chemistry"
+  score     Int       // 200-800
+  date      DateTime?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([testingId])
+}
+
+// -----------------------------------------------------------------------------
+// Activities - Extracurriculars
+// -----------------------------------------------------------------------------
+
+model Activity {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  title        String    // "President" | "Member" | "Volunteer"
+  organization String    // "Robotics Club" | "Local Hospital"
+  
+  // Category
+  category     String?   // "club" | "sport" | "arts" | "volunteer" | "work" | "family" | "other"
+  
+  // Duration
+  yearsActive  String?   // "9th-11th" or "2021-2023"
+  startGrade   String?   // "9th"
+  endGrade     String?   // "11th" or "present"
+  
+  // Time Commitment
+  hoursPerWeek     Float?
+  weeksPerYear     Int?
+  
+  // Details
+  description      String?   // Impact, responsibilities
+  achievements     String?   // Specific accomplishments
+  
+  // Flags
+  isLeadership     Boolean @default(false)
+  isSpike          Boolean @default(false)  // Marked as their "spike" activity
+  isContinuing     Boolean @default(true)   // Still doing it
+  
+  // Order for display
+  displayOrder     Int     @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([studentProfileId])
+}
+
+// -----------------------------------------------------------------------------
+// Awards - Honors & Recognition
+// -----------------------------------------------------------------------------
+
+model Award {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  title        String    // "AIME Qualifier"
+  organization String?   // "MAA" | "College Board"
+  
+  // Classification
+  level        String    // "school" | "regional" | "state" | "national" | "international"
+  category     String?   // "academic" | "arts" | "athletics" | "community" | "other"
+  
+  // When
+  year         Int?
+  gradeLevel   String?   // When they received it
+  
+  // Details
+  description  String?
+  
+  // Order for display
+  displayOrder Int @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([studentProfileId])
+}
+
+// -----------------------------------------------------------------------------
+// Programs - Summer, Research, Internships
+// -----------------------------------------------------------------------------
+
+model Program {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  name         String    // "Stanford SIMR"
+  organization String?   // "Stanford Medicine"
+  
+  // Type
+  type         String    // "summer" | "research" | "internship" | "online" | "competition_prep" | "other"
+  
+  // Status
+  status       String    // "interested" | "applying" | "applied" | "accepted" | "rejected" | "waitlisted" | "attending" | "completed"
+  
+  // Timing
+  year         Int?
+  startDate    DateTime?
+  endDate      DateTime?
+  duration     String?   // "2 weeks" | "6 weeks" | "semester"
+  
+  // Application
+  applicationDeadline DateTime?
+  applicationStatus   String?   // Notes on where they are in the process
+  
+  // Details
+  description  String?
+  selectivity  String?   // "highly_selective" | "selective" | "moderate" | "open"
+  
+  // Outcome (if completed)
+  outcome      String?   // What they accomplished
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([studentProfileId])
+  @@index([status])
+}
+
+// =============================================================================
+// LAYER 3: SCHOOLS & PLANNING
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// School - Reference Data (Curated, shared across students)
+// -----------------------------------------------------------------------------
+
+model School {
+  id            String @id @default(uuid())
+  
+  // Basic Info
+  name          String    @unique
+  shortName     String?   // "MIT", "Stanford"
+  
+  // Location
+  city          String?
+  state         String?
+  country       String   @default("USA")
+  region        String?   // "Northeast" | "West" | "Midwest" | "South"
+  
+  // Type
+  type          String?   // "private" | "public" | "liberal_arts"
+  
+  // Admissions Stats
+  acceptanceRate     Float?   // 0.0 - 1.0
+  edAcceptanceRate   Float?   // Early decision rate
+  eaAcceptanceRate   Float?   // Early action rate
+  
+  // Admitted Student Profile
+  avgGpaUnweighted   Float?
+  avgGpaWeighted     Float?
+  satRange25         Int?     // 25th percentile
+  satRange75         Int?     // 75th percentile
+  actRange25         Int?
+  actRange75         Int?
+  
+  // Size
+  undergradEnrollment Int?
+  studentFacultyRatio String?  // "6:1"
+  
+  // Costs
+  tuition            Int?
+  roomBoard          Int?
+  avgFinancialAid    Int?
+  
+  // Deadlines (updated annually)
+  deadlineEd         DateTime?  // Early Decision
+  deadlineEd2        DateTime?  // ED2
+  deadlineEa         DateTime?  // Early Action
+  deadlineRea        DateTime?  // Restrictive EA
+  deadlineRd         DateTime?  // Regular Decision
+  
+  // Links
+  websiteUrl         String?
+  admissionsUrl      String?
+  
+  // Metadata
+  lastUpdated        DateTime  @default(now())
+  dataSource         String?   // "college_scorecard" | "manual" | "common_data_set"
+  
+  // Relations
+  studentSchools StudentSchool[]
+  
+  @@index([name])
+}
+
+// -----------------------------------------------------------------------------
+// StudentSchool - Student's School List
+// -----------------------------------------------------------------------------
+
+model StudentSchool {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  schoolId         String
+  school           School @relation(fields: [schoolId], references: [id])
+  
+  // Classification
+  tier             String    // "dream" | "reach" | "target" | "safety"
+  
+  // Interest Level
+  interestLevel    String?   // "high" | "medium" | "low" | "uncertain"
+  
+  // Application Status
+  status           String    @default("researching")  
+  // "researching" | "planning" | "in_progress" | "submitted" | "accepted" | "rejected" | "waitlisted" | "deferred" | "withdrawn" | "committed"
+  
+  // Application Type
+  applicationType  String?   // "ed" | "ed2" | "ea" | "rea" | "rd"
+  
+  // Decision
+  decisionDate     DateTime?
+  financialAidOffered Int?
+  
+  // Student's Notes
+  notes            String?
+  whyInterested    String?   // Why this school
+  concerns         String?   // Hesitations
+  
+  // Calculated
+  calculatedChance Float?    // Our calculated admission probability
+  chanceUpdatedAt  DateTime?
+  
+  // Display
+  displayOrder     Int       @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([studentProfileId, schoolId])
+  @@index([studentProfileId])
+  @@index([status])
+}
+
+// -----------------------------------------------------------------------------
+// Goals - Student's Objectives
+// -----------------------------------------------------------------------------
+
+model Goal {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Basic Info
+  title        String
+  description  String?
+  
+  // Classification
+  category     String    // "research" | "competition" | "leadership" | "project" | "academic" | "application" | "other"
+  
+  // Status
+  status       String    @default("planning")
+  // "parking_lot" | "planning" | "in_progress" | "completed" | "abandoned"
+  
+  // Timing
+  targetDate   DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  
+  // Priority
+  priority     String?   // "high" | "medium" | "low"
+  
+  // Impact
+  impactDescription String?  // Why this matters for their application
+  relatedPillar     String?  // "academics" | "activities" | "awards" | etc.
+  
+  // Display
+  displayOrder Int @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  tasks Task[]
+  
+  @@index([studentProfileId])
+  @@index([status])
+}
+
+model Task {
+  id     String @id @default(uuid())
+  goalId String
+  goal   Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  
+  // Task Info
+  title       String
+  description String?
+  
+  // Status
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  
+  // Timing
+  dueDate     DateTime?
+  
+  // Priority
+  priority    String?   // "high" | "medium" | "low"
+  
+  // Order
+  displayOrder Int @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([goalId])
+}
+
+// =============================================================================
+// LAYER 4: AI & CONVERSATIONS
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Conversation - Chat Sessions
+// -----------------------------------------------------------------------------
+
+model Conversation {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Metadata
+  title            String?   // Auto-generated or user-set
+  mode             String?   // "general" | "chances" | "planning" | "schools" | "story" | "courses"
+  
+  // Summary (rolling, updated periodically)
+  summary          String?
+  summaryUpdatedAt DateTime?
+  
+  // Lifecycle
+  startedAt        DateTime  @default(now())
+  endedAt          DateTime?
+  lastMessageAt    DateTime?
+  
+  // Stats
+  messageCount     Int       @default(0)
+  
+  // Metadata
+  metadata         Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  messages Message[]
+  
+  @@index([studentProfileId])
+  @@index([startedAt])
+}
+
+// -----------------------------------------------------------------------------
+// Message - Individual Chat Messages
+// -----------------------------------------------------------------------------
+
+model Message {
+  id             String @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  // Message Content
+  role           String    // "user" | "assistant" | "system"
+  content        String
+  
+  // For assistant messages with tool calls
+  toolCalls      Json?     // Array of tool calls made
+  toolResults    Json?     // Results of tool executions
+  
+  // Widget data (for confirmation UI)
+  widgetType     String?   // "gpa" | "sat" | "activity" | "award" | "school" | "goal" | "course"
+  widgetData     Json?     // Structured data for the widget
+  widgetStatus   String?   // "pending" | "confirmed" | "edited" | "dismissed"
+  
+  // Model info (for analytics/debugging)
+  model          String?   // "claude-3-5-sonnet" | "gpt-4o" | "llama-3.1-70b"
+  provider       String?   // "anthropic" | "openai" | "groq"
+  tokensUsed     Int?
+  latencyMs      Int?
+  
+  // Parsing results (from fast parser)
+  parsedIntents  Json?     // What intents were detected
+  parsedEntities Json?     // What entities were extracted
+  
+  createdAt DateTime @default(now())
+  
+  @@index([conversationId])
+  @@index([createdAt])
+}
+
+// -----------------------------------------------------------------------------
+// StudentContext - Master AI Context
+// -----------------------------------------------------------------------------
+
+model StudentContext {
+  id               String @id @default(uuid())
+  studentProfileId String @unique
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Rolling summary across ALL conversations
+  masterSummary         String?
+  masterSummaryUpdatedAt DateTime?
+  
+  // Quick-access profile snapshot (for fast context loading)
+  profileSnapshot       Json?     // Key facts: { gpa, sat, topActivities, etc. }
+  snapshotUpdatedAt     DateTime?
+  
+  // Learned preferences
+  communicationStyle    String?   // How they prefer to be talked to
+  emotionalTendencies   String?   // "anxious" | "confident" | "needs_encouragement"
+  preferredCheckInTime  String?   // "morning" | "evening"
+  
+  // Interaction stats
+  totalConversations    Int       @default(0)
+  totalMessages         Int       @default(0)
+  lastConversationAt    DateTime?
+  
+  // Topics discussed
+  topicsDiscussed       Json?     // Track what's been covered
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// LAYER 5: ACCESS CONTROL
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// AccessGrant - Sharing Permissions
+// -----------------------------------------------------------------------------
+
+model AccessGrant {
+  id               String @id @default(uuid())
+  studentProfileId String
+  studentProfile   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  
+  // Who granted and who received
+  grantedByUserId  String
+  grantedBy        User   @relation("GrantedBy", fields: [grantedByUserId], references: [id])
+  grantedToUserId  String
+  grantedTo        User   @relation("GrantedTo", fields: [grantedToUserId], references: [id])
+  
+  // Permission level
+  permission       String    // "view" | "comment" | "edit" | "admin"
+  
+  // What's shared
+  scope            String    @default("full")  // "full" | "limited"
+  scopeDetails     Json?     // If limited, what's included/excluded
+  
+  // Validity
+  expiresAt        DateTime?
+  revokedAt        DateTime?
+  
+  // Relationship type (for UI)
+  relationship     String?   // "parent" | "counselor" | "tutor" | "other"
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([studentProfileId, grantedToUserId])
+  @@index([grantedToUserId])
+}
+
+// -----------------------------------------------------------------------------
+// Organization - For Counselors (Future)
+// -----------------------------------------------------------------------------
+
+model Organization {
+  id          String @id @default(uuid())
+  
+  name        String
+  type        String    // "counseling_practice" | "high_school" | "tutoring_center"
+  
+  // Settings
+  settings    Json?
+  
+  // Owner
+  ownerUserId String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  members OrganizationMember[]
+  studentLinks OrganizationStudentLink[]
+}
+
+model OrganizationMember {
+  id             String @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User   @relation(fields: [userId], references: [id])
+  
+  role           String    // "owner" | "admin" | "counselor" | "assistant"
+  
+  createdAt DateTime @default(now())
+  
+  @@unique([organizationId, userId])
+}
+
+model OrganizationStudentLink {
+  id               String @id @default(uuid())
+  organizationId   String
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  studentProfileId String
+  
+  // Assigned counselor within the org
+  assignedCounselorId String?
+  
+  status           String    @default("active")  // "active" | "archived"
+  
+  // Counselor notes (private to org)
+  notes            String?
+  
+  joinedAt DateTime @default(now())
+  
+  @@unique([organizationId, studentProfileId])
+}
