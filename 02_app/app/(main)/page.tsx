@@ -119,9 +119,40 @@ const MOCK_PROFILES: Record<number, StudentProfile> = {
       { id: "2", title: "Regional Science Fair - 2nd Place", level: "regional" },
     ],
     goals: [
-      { id: "1", title: "Apply to SIMR Summer Research", category: "research", status: "in_progress" },
-      { id: "2", title: "Qualify for USAMO", category: "competition", status: "planning" },
-      { id: "3", title: "Launch coding bootcamp for underserved students", category: "leadership", status: "planning" },
+      { 
+        id: "1", 
+        title: "Apply to SIMR Summer Research", 
+        category: "research", 
+        status: "in_progress",
+        targetDate: "Jan 15",
+        tasks: [
+          { id: "t1", title: "Draft Essay 1", completed: true },
+          { id: "t2", title: "Draft Essay 2", completed: false },
+          { id: "t3", title: "Upload Transcript", completed: false },
+          { id: "t4", title: "Submit Application", completed: false },
+        ],
+      },
+      { 
+        id: "2", 
+        title: "Qualify for USAMO", 
+        category: "competition", 
+        status: "planning",
+        targetDate: "Feb 8",
+        tasks: [
+          { id: "t5", title: "Take AMC Practice Exam", completed: false },
+          { id: "t6", title: "Review Number Theory", completed: false },
+        ],
+      },
+      { 
+        id: "3", 
+        title: "Launch coding bootcamp for underserved students", 
+        category: "leadership", 
+        status: "planning",
+        tasks: [
+          { id: "t7", title: "Find venue", completed: false },
+          { id: "t8", title: "Create curriculum", completed: false },
+        ],
+      },
     ],
   },
 };

@@ -37,14 +37,22 @@ export type School = {
   deadline?: string;
 };
 
+export type Task = {
+  id: string;
+  title: string;
+  completed: boolean;
+  dueDate?: string;
+};
+
 export type Goal = {
   id: string;
   title: string;
   category: "research" | "competition" | "leadership" | "project" | "other";
-  status: "planning" | "in_progress" | "completed";
+  status: "parking_lot" | "planning" | "in_progress" | "completed";
   targetDate?: string;
   description?: string;
   opportunities?: string[]; // Related opportunity names
+  tasks?: Task[];
 };
 
 export type StudentProfile = {
