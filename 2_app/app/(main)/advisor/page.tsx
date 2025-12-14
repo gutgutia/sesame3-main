@@ -1,568 +1,57 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Send, ArrowLeft, Sparkles } from "lucide-react";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { DataWidget } from "@/components/chat/DataWidget";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 import { ChancesPanel } from "@/components/chat/ChancesPanel";
-import {
-  StudentProfile,
-  loadProfile,
-  saveProfile,
-  parseUserInput,
-  ParsedData,
-} from "@/lib/profile";
-
-type WidgetData = {
-  type: "gpa" | "sat" | "act" | "activity" | "award" | "school" | "goal";
-  data: any;
-  status: "draft" | "saved" | "dismissed";
-};
-
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  text: string;
-  widget?: WidgetData;
-};
+import { StudentProfile } from "@/lib/profile";
+import { useState, useEffect } from "react";
 
 function AdvisorContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q");
-  const mode = searchParams.get("mode"); // "chances" for chances-focused flow
-
-  const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
+  const mode = searchParams.get("mode") as "general" | "chances" | "schools" | "planning" | "profile" | "story" || "general";
+  
   const [profile, setProfile] = useState<StudentProfile>({});
   const [targetSchool, setTargetSchool] = useState<string | undefined>();
-
-  const hasInitialized = useRef(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load profile on mount
-  useEffect(() => {
-    const loaded = loadProfile();
-    setProfile(loaded);
-
-    // Set target school from onboarding or query
-    if (loaded.onboarding?.dreamSchool) {
-      setTargetSchool(loaded.onboarding.dreamSchool);
-    }
-  }, []);
-
-  // Initialize conversation
-  useEffect(() => {
-    if (hasInitialized.current) return;
-    hasInitialized.current = true;
-
-    const loaded = loadProfile();
-    const name = loaded.onboarding?.name;
-    const dreamSchool = loaded.onboarding?.dreamSchool;
-    const grade = loaded.onboarding?.grade;
-
-    setIsTyping(true);
-
-    setTimeout(() => {
-      let welcomeMessages: Message[] = [];
-
-      // Mode: Check Chances
-      if (mode === "chances") {
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Fetch profile from API
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch("/api/profile");
+      if (response.ok) {
+        const data = await response.json();
+        setProfile(data);
+        // If there's a dream school in the list, set it as target
+        const dreamSchool = data.schoolList?.find((s: { tier: string }) => s.tier === "dream");
         if (dreamSchool) {
-          setTargetSchool(dreamSchool);
-          welcomeMessages = [
-            {
-              id: "1",
-              role: "assistant",
-              text: `Hi${name ? ` ${name}` : ""}! Let's see where you stand for ${dreamSchool}.`,
-            },
-            {
-              id: "2",
-              role: "assistant",
-              text: "Tell me about yourself — start with whatever feels easiest. Your GPA? Test scores? Activities you're proud of?",
-            },
-          ];
-        } else {
-          welcomeMessages = [
-            {
-              id: "1",
-              role: "assistant",
-              text: `Hi${name ? ` ${name}` : ""}! I can help you see your chances at any school.`,
-            },
-            {
-              id: "2",
-              role: "assistant",
-              text: "First, which school are you most curious about?",
-            },
-          ];
+          setTargetSchool(dreamSchool.school?.name);
         }
       }
-      // Mode: Planning / Set Goals
-      else if (mode === "planning") {
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! Let's set some goals for your college journey.`,
-          },
-          {
-            id: "2",
-            role: "assistant",
-            text: "What's something you're working toward? For example:\n\n• Summer research programs (like SIMR, RSI)\n• Competitions (AIME, Science Olympiad)\n• Starting a club or project\n• A leadership position\n\nWhat sounds most relevant to you?",
-          },
-        ];
-      }
-      // Mode: Schools / Build School List
-      else if (mode === "schools") {
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! Let's build your school list.`,
-          },
-          {
-            id: "2",
-            role: "assistant",
-            text: dreamSchool 
-              ? `I know ${dreamSchool} is your dream school. What other schools are you considering? I can also suggest some that might be a good fit.`
-              : "Which schools are you interested in? I can help you build a balanced list with reaches, targets, and safeties.",
-          },
-        ];
-      }
-      // Mode: Profile Building
-      else if (mode === "profile") {
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! Let's build your profile.`,
-          },
-          {
-            id: "2",
-            role: "assistant",
-            text: "Tell me about yourself — your GPA, test scores, activities, awards. Start with whatever feels easiest.",
-          },
-        ];
-      }
-      // Mode: Personal Story
-      else if (mode === "story") {
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! I'd love to get to know you beyond the numbers.`,
-          },
-          {
-            id: "2",
-            role: "assistant",
-            text: "Tell me about yourself — what makes you tick? What are you curious about? What do you care deeply about?\n\nThis isn't about achievements. I want to understand who you are as a person. Take your time.",
-          },
-        ];
-      }
-      // Initial query from dashboard
-      else if (initialQuery) {
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! I saw your message.`,
-          },
-        ];
-        // Process the initial query
-        setTimeout(() => {
-          addUserMessage(initialQuery);
-          processUserInput(initialQuery);
-        }, 500);
-      }
-      // Default welcome
-      else {
-        const greeting = dreamSchool
-          ? `Let's build your profile for ${dreamSchool}. What would you like to share first?`
-          : grade
-          ? `As a ${grade.toLowerCase()}, now's a great time to start building your profile. What would you like to share?`
-          : "I can help you build your profile, check your chances at schools, or plan your next steps. What's on your mind?";
-
-        welcomeMessages = [
-          {
-            id: "1",
-            role: "assistant",
-            text: `Hi${name ? ` ${name}` : ""}! I'm Sesame, your college prep advisor.`,
-          },
-          {
-            id: "2",
-            role: "assistant",
-            text: greeting,
-          },
-        ];
-      }
-
-      setMessages(welcomeMessages);
-      setIsTyping(false);
-    }, 600);
-  }, [initialQuery, mode]);
-
-  // Auto-scroll to bottom
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+    }
+  };
+  
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isTyping]);
-
-  const addUserMessage = (text: string) => {
-    const msg: Message = { id: Date.now().toString(), role: "user", text };
-    setMessages((prev) => [...prev, msg]);
-  };
-
-  const addAssistantMessage = (text: string, widget?: WidgetData) => {
-    const msg: Message = {
-      id: Date.now().toString(),
-      role: "assistant",
-      text,
-      widget,
-    };
-    setMessages((prev) => [...prev, msg]);
-  };
-
-  const processUserInput = (text: string) => {
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const parsed = parseUserInput(text);
-
-      // Handle different parsed types
-      if (parsed.type === "gpa") {
-        const response = parsed.data.value >= 3.8
-          ? `A ${parsed.data.value} GPA is strong! That puts you in competitive range for top schools.`
-          : parsed.data.value >= 3.5
-          ? `${parsed.data.value} is solid. Combined with strong extracurriculars, you're in good shape.`
-          : `Got it — ${parsed.data.value}. Remember, GPA is just one factor. Strong activities and essays can balance this.`;
-
-        addAssistantMessage(response, {
-          type: "gpa",
-          data: parsed.data,
-          status: "draft",
-        });
-      }
-      else if (parsed.type === "sat") {
-        const score = parsed.data.value;
-        const response = score >= 1500
-          ? `Excellent! ${score} puts you in the top percentiles. This is a strong asset for your applications.`
-          : score >= 1400
-          ? `${score} is competitive for most schools. Some students retake to push higher, but this is solid.`
-          : `Got it — ${score}. If you're targeting highly selective schools, you might consider retaking or looking at test-optional policies.`;
-
-        addAssistantMessage(response, {
-          type: "sat",
-          data: parsed.data,
-          status: "draft",
-        });
-      }
-      else if (parsed.type === "act") {
-        const score = parsed.data.value;
-        const response = score >= 34
-          ? `${score} is excellent! That's equivalent to a ~1550+ SAT.`
-          : score >= 30
-          ? `${score} is competitive for most schools. Nice work!`
-          : `Got it — ${score} ACT recorded.`;
-
-        addAssistantMessage(response, {
-          type: "act",
-          data: parsed.data,
-          status: "draft",
-        });
-      }
-      else if (parsed.type === "activity") {
-        const response = parsed.data.isLeadership
-          ? `Leadership roles like this stand out to admissions officers. This shows initiative and impact.`
-          : `Great! Activities like this help build your profile beyond academics.`;
-
-        addAssistantMessage(response, {
-          type: "activity",
-          data: parsed.data,
-          status: "draft",
-        });
-      }
-      else if (parsed.type === "award") {
-        const response = parsed.data.level === "national"
-          ? `A national-level award is a significant differentiator. This could really strengthen your application.`
-          : `Nice! Awards show recognition for your efforts. Every bit helps build your story.`;
-
-        addAssistantMessage(response, {
-          type: "award",
-          data: parsed.data,
-          status: "draft",
-        });
-      }
-      else if (parsed.type === "school") {
-        setTargetSchool(parsed.data.name);
-        const schoolResponses: Record<string, string> = {
-          chances: `${parsed.data.name} — added to your list! I'll calculate your chances as you share more info.`,
-          schools: `${parsed.data.name} — great addition! Want to add more schools, or should I suggest some that fit your profile?`,
-          default: `${parsed.data.name} — great choice! I'll track your chances there as we build your profile.`,
-        };
-        addAssistantMessage(
-          schoolResponses[mode || "default"] || schoolResponses.default,
-          {
-            type: "school",
-            data: parsed.data,
-            status: "draft",
-          }
-        );
-      }
-      else if (parsed.type === "goal") {
-        const categoryResponses: Record<string, string> = {
-          research: "Summer research is a fantastic goal! Programs like SIMR, RSI, and COSMOS are highly competitive but amazing for your profile.",
-          competition: "Competitions are a great way to stand out. Let's make sure you're preparing strategically.",
-          leadership: "Starting something new shows real initiative. Colleges love seeing students who create impact.",
-          project: "Personal projects demonstrate passion and self-direction. This can really strengthen your application.",
-          other: "Great goal! Let's add it and track your progress.",
-        };
-        addAssistantMessage(
-          categoryResponses[parsed.data.category] || categoryResponses.other,
-          {
-            type: "goal",
-            data: parsed.data,
-            status: "draft",
-          }
-        );
-      }
-      else {
-        // Unknown - context-aware clarifying question
-        const clarifyingQuestions: Record<string, string> = {
-          planning: "I want to make sure I capture that goal correctly. Is this about research, competitions, leadership, or a project?",
-          schools: "Which school did you have in mind? You can name specific schools or describe what you're looking for.",
-          default: "I want to make sure I capture that correctly. Is this about your academics, test scores, activities, or something else?",
-        };
-        addAssistantMessage(clarifyingQuestions[mode || "default"] || clarifyingQuestions.default);
-      }
-
-      setIsTyping(false);
-    }, 800);
-  };
-
-  const handleWidgetConfirm = (msgId: string, data: any, type: string) => {
-    // Update message widget status
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (msg.id === msgId && msg.widget) {
-          return { ...msg, widget: { ...msg.widget, status: "saved" as const, data } };
-        }
-        return msg;
-      })
-    );
-
-    // Update profile based on type
-    const updatedProfile = { ...profile };
-
-    if (type === "gpa") {
-      updatedProfile.academics = updatedProfile.academics || {};
-      if (data.isWeighted) {
-        updatedProfile.academics.gpaWeighted = data.value;
-      } else {
-        updatedProfile.academics.gpaUnweighted = data.value;
-      }
-    }
-    else if (type === "sat") {
-      updatedProfile.testing = updatedProfile.testing || {};
-      updatedProfile.testing.sat = data.value;
-    }
-    else if (type === "act") {
-      updatedProfile.testing = updatedProfile.testing || {};
-      updatedProfile.testing.act = data.value;
-    }
-    else if (type === "activity") {
-      updatedProfile.activities = updatedProfile.activities || [];
-      updatedProfile.activities.push({
-        id: Date.now().toString(),
-        title: data.title || data.label,
-        isLeadership: data.isLeadership,
-      });
-    }
-    else if (type === "award") {
-      updatedProfile.awards = updatedProfile.awards || [];
-      updatedProfile.awards.push({
-        id: Date.now().toString(),
-        title: data.title || data.label,
-        level: data.level,
-      });
-    }
-    else if (type === "school") {
-      updatedProfile.schools = updatedProfile.schools || [];
-      // Check if school already exists
-      if (!updatedProfile.schools.find(s => s.name === data.name)) {
-        updatedProfile.schools.push({
-          id: Date.now().toString(),
-          name: data.name,
-          status: "exploring",
-        });
-      }
-      setTargetSchool(data.name);
-    }
-    else if (type === "goal") {
-      updatedProfile.goals = updatedProfile.goals || [];
-      updatedProfile.goals.push({
-        id: Date.now().toString(),
-        title: data.title || data.label,
-        category: data.category || "other",
-        status: "planning",
-      });
-    }
-
-    setProfile(updatedProfile);
-    saveProfile(updatedProfile);
-
-    // Add context-aware follow-up message
-    setTimeout(() => {
-      const followUps: Record<string, string[]> = {
-        planning: [
-          "Great goal! Any other goals you're working toward?",
-          "What else are you planning for this year?",
-          "Any other programs or competitions on your radar?",
-        ],
-        schools: [
-          "What other schools are you considering?",
-          "Want to add more schools, or should I suggest some?",
-          "Any other schools on your list?",
-        ],
-        chances: [
-          "What else can you tell me? More info = more accurate chances.",
-          "Anything else? Activities, awards, test scores?",
-          "Keep going — every detail helps refine your chances.",
-        ],
-        default: [
-          "What else would you like to share?",
-          "Anything else you want to add?",
-          "Keep going — what else is part of your story?",
-        ],
-      };
-      const modeFollowUps = followUps[mode || "default"] || followUps.default;
-      addAssistantMessage(modeFollowUps[Math.floor(Math.random() * modeFollowUps.length)]);
-    }, 500);
-  };
-
-  const handleWidgetDismiss = (msgId: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (msg.id === msgId && msg.widget) {
-          return { ...msg, widget: { ...msg.widget, status: "dismissed" as const } };
-        }
-        return msg;
-      })
-    );
-  };
-
-  const handleSubmit = () => {
-    if (!input.trim()) return;
-    const text = input.trim();
-    setInput("");
-    addUserMessage(text);
-    processUserInput(text);
+    fetchProfile();
+  }, [refreshKey]);
+  
+  const handleProfileUpdate = () => {
+    // Refresh the profile when data is saved
+    setRefreshKey(k => k + 1);
   };
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-bg-app">
       {/* Left: Chat Interface */}
       <div className="flex-1 flex flex-col h-full relative">
-        {/* Header */}
-        <div className="h-16 flex items-center px-6 border-b border-border-subtle bg-white/80 backdrop-blur-sm sticky top-0 z-10">
-          <Link
-            href="/"
-            className="mr-4 p-2 hover:bg-bg-sidebar rounded-full transition-colors text-text-muted"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-text-main text-white rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <span className="font-display font-bold text-lg text-text-main">Sesame</span>
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4" ref={scrollRef}>
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
-            >
-              <div className="max-w-[85%]">
-                <div
-                  className={cn(
-                    "rounded-2xl px-5 py-3 text-[15px] leading-relaxed",
-                    msg.role === "user"
-                      ? "bg-text-main text-white rounded-br-sm"
-                      : "bg-white border border-border-subtle text-text-main rounded-bl-sm shadow-sm"
-                  )}
-                >
-                  {msg.text}
-                </div>
-
-                {/* Widget */}
-                {msg.widget && msg.widget.status !== "dismissed" && (
-                  <DataWidget
-                    type={msg.widget.type}
-                    data={msg.widget.data}
-                    status={msg.widget.status}
-                    onConfirm={(data) => handleWidgetConfirm(msg.id, data, msg.widget!.type)}
-                    onDismiss={() => handleWidgetDismiss(msg.id)}
-                  />
-                )}
-              </div>
-            </div>
-          ))}
-
-          {/* Typing indicator */}
-          {isTyping && (
-            <div className="flex justify-start">
-              <div className="bg-white border border-border-subtle rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-1.5 bg-text-muted/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-1.5 bg-text-muted/40 rounded-full animate-bounce" />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 md:p-6 bg-white border-t border-border-subtle">
-          <div className="relative max-w-3xl mx-auto">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-              placeholder="Share your GPA, test scores, activities..."
-              className="w-full bg-bg-sidebar border border-border-medium rounded-xl pl-5 pr-14 py-4 text-[15px] focus:outline-none focus:border-accent-primary focus:ring-4 focus:ring-accent-surface transition-all"
-              autoFocus
-            />
-            <button
-              onClick={handleSubmit}
-              disabled={!input.trim()}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-2.5 bg-text-main text-white rounded-lg hover:bg-black/80 disabled:opacity-40 transition-colors"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
-          
-          {/* Quick suggestions */}
-          <div className="flex flex-wrap gap-2 mt-3 max-w-3xl mx-auto">
-            {!profile.academics?.gpaUnweighted && (
-              <QuickSuggestion onClick={() => setInput("My GPA is ")} label="Add GPA" />
-            )}
-            {!profile.testing?.sat && !profile.testing?.act && (
-              <QuickSuggestion onClick={() => setInput("I got a ")} label="Add test score" />
-            )}
-            {(!profile.activities || profile.activities.length === 0) && (
-              <QuickSuggestion onClick={() => setInput("I'm involved in ")} label="Add activity" />
-            )}
-          </div>
-        </div>
+        <ChatInterface 
+          mode={mode}
+          initialMessage={initialQuery || undefined}
+          onProfileUpdate={handleProfileUpdate}
+        />
       </div>
 
       {/* Right: Profile & Chances Panel */}
@@ -570,17 +59,6 @@ function AdvisorContent() {
         <ChancesPanel profile={profile} targetSchool={targetSchool} />
       </div>
     </div>
-  );
-}
-
-function QuickSuggestion({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-3 py-1.5 bg-bg-sidebar border border-border-subtle rounded-full text-xs text-text-muted hover:text-text-main hover:border-accent-primary transition-colors"
-    >
-      + {label}
-    </button>
   );
 }
 

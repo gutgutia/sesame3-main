@@ -37,7 +37,6 @@ async function testModel(
     const result = await generateText({
       model: modelInstance as Parameters<typeof generateText>[0]["model"],
       prompt: TEST_PROMPT,
-      maxTokens: 50,
     });
     
     return {
