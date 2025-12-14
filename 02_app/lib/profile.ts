@@ -174,6 +174,69 @@ export function getProfileCompleteness(profile: StudentProfile): {
   return { total, sections };
 }
 
+// Calculate dashboard zone for progressive graduation
+// Zone 0: Empty - just name from onboarding
+// Zone 1: Has data in 1 area (schools OR profile OR goals)
+// Zone 2: Has data in 2+ areas
+// Zone 3: Has meaningful data in all 3 areas
+export type DashboardZone = 0 | 1 | 2 | 3;
+
+export type ZoneStatus = {
+  zone: DashboardZone;
+  areas: {
+    schools: { filled: boolean; count: number };
+    profile: { filled: boolean; hasAcademics: boolean; hasActivities: boolean; hasAwards: boolean };
+    goals: { filled: boolean; count: number };
+  };
+  filledCount: number;
+  nextSteps: string[];
+};
+
+export function calculateZone(profile: StudentProfile): ZoneStatus {
+  // Check each area
+  const hasSchools = (profile.schools?.length || 0) > 0 || !!profile.onboarding?.dreamSchool;
+  const schoolCount = (profile.schools?.length || 0) + (profile.onboarding?.dreamSchool ? 1 : 0);
+  
+  const hasAcademics = !!(profile.academics?.gpaUnweighted || profile.academics?.gpaWeighted || profile.testing?.sat || profile.testing?.act);
+  const hasActivities = (profile.activities?.length || 0) > 0;
+  const hasAwards = (profile.awards?.length || 0) > 0;
+  const hasProfile = hasAcademics || hasActivities || hasAwards;
+  
+  const hasGoals = (profile.goals?.length || 0) > 0;
+  const goalCount = profile.goals?.length || 0;
+  
+  // Count filled areas
+  const filledAreas = [hasSchools, hasProfile, hasGoals].filter(Boolean).length;
+  
+  // Determine zone
+  let zone: DashboardZone = 0;
+  if (filledAreas >= 3) {
+    zone = 3;
+  } else if (filledAreas >= 2) {
+    zone = 2;
+  } else if (filledAreas >= 1) {
+    zone = 1;
+  }
+  
+  // Determine next steps
+  const nextSteps: string[] = [];
+  if (!hasSchools) nextSteps.push("Add schools to your list");
+  if (!hasAcademics) nextSteps.push("Add your GPA or test scores");
+  if (!hasActivities) nextSteps.push("Add your activities");
+  if (!hasGoals) nextSteps.push("Set your first goal");
+  
+  return {
+    zone,
+    areas: {
+      schools: { filled: hasSchools, count: schoolCount },
+      profile: { filled: hasProfile, hasAcademics, hasActivities, hasAwards },
+      goals: { filled: hasGoals, count: goalCount },
+    },
+    filledCount: filledAreas,
+    nextSteps,
+  };
+}
+
 // Mock chances calculator
 export function calculateChances(profile: StudentProfile, schoolName: string): {
   chance: number;
