@@ -711,6 +711,261 @@
       .faq-grid { grid-template-columns: 1fr; }
     }
 
+    /* === Pricing Section === */
+    .pricing-section {
+      padding: 100px 0;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .pricing-card {
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      padding: 32px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .pricing-card.featured {
+      background: var(--text-main);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent-primary);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pricing-header {
+      text-align: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    .pricing-card.featured .pricing-header {
+      border-bottom-color: rgba(255,255,255,0.2);
+    }
+    .pricing-name {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .pricing-price {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .price-amount {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .price-period {
+      font-size: 16px;
+      color: var(--text-muted);
+    }
+    .pricing-card.featured .price-period {
+      color: rgba(255,255,255,0.7);
+    }
+    .pricing-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .pricing-card.featured .pricing-desc {
+      color: rgba(255,255,255,0.7);
+    }
+    .pricing-features {
+      list-style: none;
+      flex: 1;
+      margin-bottom: 24px;
+    }
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    .pricing-card.featured .pricing-features li {
+      color: white;
+    }
+    .pricing-features li i {
+      width: 18px;
+      height: 18px;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .pricing-card.featured .pricing-features li i {
+      color: #4ADE80;
+    }
+    .pricing-features li.disabled {
+      color: var(--text-light);
+    }
+    .pricing-features li.disabled i {
+      color: var(--text-light);
+    }
+    .pricing-features li.spacer {
+      visibility: hidden;
+    }
+    .pricing-cta {
+      width: 100%;
+      justify-content: center;
+    }
+    .pricing-card.featured .pricing-cta {
+      background: white;
+      color: var(--text-main);
+    }
+    .pricing-annual {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 12px;
+    }
+    .pricing-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .pricing-note i {
+      width: 16px;
+      height: 16px;
+      color: var(--accent-primary);
+    }
+    @media (max-width: 900px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .pricing-card.featured {
+        transform: none;
+        order: -1;
+      }
+    }
+
+    /* === Parents Section === */
+    .parents-section {
+      padding: 100px 0;
+      background: white;
+      border-top: 1px solid var(--border);
+    }
+    .parents-content {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .parents-intro {
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+    .parents-points {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .parent-point {
+      display: flex;
+      gap: 16px;
+    }
+    .point-icon {
+      width: 44px; height: 44px;
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+      flex-shrink: 0;
+    }
+    .point-icon i { width: 22px; height: 22px; }
+    .point-content h4 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .point-content p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .parents-visual {
+      display: flex;
+      justify-content: center;
+    }
+    .parent-quote-card {
+      background: linear-gradient(135deg, var(--accent-surface) 0%, #F0FAF8 100%);
+      border: 1px solid var(--accent-border);
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 360px;
+    }
+    .quote-icon {
+      width: 40px; height: 40px;
+      background: var(--accent-primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-bottom: 20px;
+    }
+    .quote-icon i { width: 20px; height: 20px; }
+    .parent-quote-card p {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-main);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .quote-attribution {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .quote-dash {
+      margin-right: 4px;
+    }
+    @media (max-width: 900px) {
+      .parents-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .parents-visual {
+        order: -1;
+      }
+    }
+
     /* === CTA === */
     .cta-section {
       padding: 120px 0;
@@ -1228,6 +1483,152 @@
         <div class="faq-item">
           <h3>Is it really free?</h3>
           <p>Yes, you can get started completely free. We'll offer optional premium features in the future, but the core experience — advisor, chances, school list, roadmap — is free.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing-section" id="pricing">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-label">Pricing</div>
+        <h2 class="section-title">Start free, upgrade when ready</h2>
+        <p class="section-subtitle">No credit card required. Use the free tier forever.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Free Tier -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-name">Free</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$0</span>
+              <span class="price-period">forever</span>
+            </div>
+            <p class="pricing-desc">For students exploring their options</p>
+          </div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> 20 AI messages per week</li>
+            <li><i data-lucide="check"></i> Profile building</li>
+            <li><i data-lucide="check"></i> School discovery</li>
+            <li><i data-lucide="check"></i> Up to 3 schools on your list</li>
+            <li><i data-lucide="check"></i> Basic chances (Reach/Target/Safety)</li>
+            <li><i data-lucide="check"></i> Basic roadmap & tasks</li>
+            <li class="disabled"><i data-lucide="x"></i> Voice chat</li>
+            <li class="disabled"><i data-lucide="x"></i> Essay review</li>
+            <li class="disabled"><i data-lucide="x"></i> Shared access</li>
+          </ul>
+          <a href="#" class="btn btn-secondary pricing-cta">Get Started Free</a>
+        </div>
+
+        <!-- Premium Tier -->
+        <div class="pricing-card featured">
+          <div class="pricing-badge">Most Popular</div>
+          <div class="pricing-header">
+            <h3 class="pricing-name">Premium</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$19</span>
+              <span class="price-period">/month</span>
+            </div>
+            <p class="pricing-desc">For serious applicants ready to go all-in</p>
+          </div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> <strong>Unlimited</strong> AI messages</li>
+            <li><i data-lucide="check"></i> Profile building</li>
+            <li><i data-lucide="check"></i> School discovery</li>
+            <li><i data-lucide="check"></i> <strong>Unlimited</strong> schools on your list</li>
+            <li><i data-lucide="check"></i> <strong>Detailed chances</strong> with % breakdown</li>
+            <li><i data-lucide="check"></i> <strong>Smart roadmap</strong> with AI suggestions</li>
+            <li><i data-lucide="check"></i> Voice chat</li>
+            <li><i data-lucide="check"></i> Essay review & feedback</li>
+            <li><i data-lucide="check"></i> Share with parents & counselors</li>
+          </ul>
+          <a href="#" class="btn btn-primary pricing-cta">Start Premium</a>
+          <p class="pricing-annual">Or $149/year (save 2 months)</p>
+        </div>
+
+        <!-- Senior Pass -->
+        <div class="pricing-card">
+          <div class="pricing-header">
+            <h3 class="pricing-name">Senior Year Pass</h3>
+            <div class="pricing-price">
+              <span class="price-amount">$99</span>
+              <span class="price-period">one-time</span>
+            </div>
+            <p class="pricing-desc">For 12th graders in crunch mode</p>
+          </div>
+          <ul class="pricing-features">
+            <li><i data-lucide="check"></i> Everything in Premium</li>
+            <li><i data-lucide="check"></i> Full access for senior year</li>
+            <li><i data-lucide="check"></i> No monthly payments</li>
+            <li><i data-lucide="check"></i> Application season covered</li>
+            <li class="spacer"></li>
+            <li class="spacer"></li>
+            <li class="spacer"></li>
+            <li class="spacer"></li>
+            <li class="spacer"></li>
+          </ul>
+          <a href="#" class="btn btn-secondary pricing-cta">Get Senior Pass</a>
+        </div>
+      </div>
+
+      <div class="pricing-note">
+        <i data-lucide="info"></i>
+        <p>Not sure yet? Start free and upgrade anytime. Your data carries over.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- For Parents -->
+  <section class="parents-section">
+    <div class="container">
+      <div class="parents-content">
+        <div class="parents-text">
+          <div class="section-label">For Parents</div>
+          <h2 class="section-title">We get it — this matters.</h2>
+          <p class="parents-intro">
+            Your child's college journey is stressful for the whole family. You want to help, but you also don't want to hover. Here's how Sesame3 helps you both.
+          </p>
+          <div class="parents-points">
+            <div class="parent-point">
+              <div class="point-icon"><i data-lucide="eye"></i></div>
+              <div class="point-content">
+                <h4>Stay informed, not intrusive</h4>
+                <p>Your child drives the process. You can check in on progress without micromanaging every detail.</p>
+              </div>
+            </div>
+            <div class="parent-point">
+              <div class="point-icon"><i data-lucide="wallet"></i></div>
+              <div class="point-content">
+                <h4>Expert guidance without the $10K price tag</h4>
+                <p>Private counselors charge thousands. Sesame3 provides personalized, strategic advice at a fraction of the cost.</p>
+              </div>
+            </div>
+            <div class="parent-point">
+              <div class="point-icon"><i data-lucide="heart"></i></div>
+              <div class="point-content">
+                <h4>Reduce stress for everyone</h4>
+                <p>When your child has a clear plan and 24/7 support, there's less anxiety at the dinner table.</p>
+              </div>
+            </div>
+            <div class="parent-point">
+              <div class="point-icon"><i data-lucide="shield"></i></div>
+              <div class="point-content">
+                <h4>Safe and private</h4>
+                <p>We never share or sell data. Your child's essays, grades, and conversations stay completely private.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="parents-visual">
+          <div class="parent-quote-card">
+            <div class="quote-icon"><i data-lucide="quote"></i></div>
+            <p>"I used to lie awake worrying if we were doing enough. Now my daughter has a plan, and I can actually sleep."</p>
+            <div class="quote-attribution">
+              <span class="quote-dash">—</span> What we hope you'll say
+            </div>
+          </div>
         </div>
       </div>
     </div>
