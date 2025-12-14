@@ -1,6 +1,5 @@
 // Profile State Management
-// This file contains the LEGACY types used by existing UI components.
-// New code should import from '@/lib/data' instead.
+// Types and utilities for student profile data
 
 export type Activity = {
   id: string;
