@@ -165,11 +165,11 @@ function DashboardContent() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMockData, setIsMockData] = useState(false);
 
-  // Load profile data from localStorage (or use mock data for prototyping)
+  // Load profile data - default to Zone 3 mock for prototype demo
   useEffect(() => {
     let profileToUse: StudentProfile;
     let zoneStatusToUse: ZoneStatus;
-    let usingMock = false;
+    let usingMock = true;
     
     if (zoneOverride !== null) {
       // Use mock data for the specified zone
@@ -178,15 +178,17 @@ function DashboardContent() {
         profileToUse = MOCK_PROFILES[overrideZone];
         zoneStatusToUse = calculateZone(profileToUse);
         zoneStatusToUse.zone = overrideZone; // Force the zone
-        usingMock = true;
       } else {
-        profileToUse = loadProfile();
+        // Invalid zone, default to Zone 3
+        profileToUse = MOCK_PROFILES[3];
         zoneStatusToUse = calculateZone(profileToUse);
+        zoneStatusToUse.zone = 3;
       }
     } else {
-      // Use real localStorage data
-      profileToUse = loadProfile();
+      // Default: Use Zone 3 mock profile (full active dashboard)
+      profileToUse = MOCK_PROFILES[3];
       zoneStatusToUse = calculateZone(profileToUse);
+      zoneStatusToUse.zone = 3;
     }
     
     setProfile(profileToUse);
