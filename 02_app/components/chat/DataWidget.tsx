@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, X, GraduationCap, PenTool, Trophy, Users, FlaskConical, School } from "lucide-react";
+import { Check, X, GraduationCap, PenTool, Trophy, Users, FlaskConical, School, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type WidgetType = "gpa" | "sat" | "act" | "activity" | "award" | "school";
+type WidgetType = "gpa" | "sat" | "act" | "activity" | "award" | "school" | "goal";
 
 interface DataWidgetProps {
   type: WidgetType;
@@ -16,6 +16,7 @@ interface DataWidgetProps {
     level?: string;
     title?: string;
     name?: string;
+    category?: string;
   };
   status: "draft" | "saved" | "dismissed";
   onConfirm: (data: any) => void;
@@ -29,6 +30,7 @@ const icons: Record<WidgetType, any> = {
   activity: Users,
   award: Trophy,
   school: School,
+  goal: Target,
 };
 
 const categoryLabels: Record<WidgetType, string> = {
@@ -38,6 +40,7 @@ const categoryLabels: Record<WidgetType, string> = {
   activity: "Activities",
   award: "Awards",
   school: "Schools",
+  goal: "Goals",
 };
 
 export function DataWidget({ type, data, status, onConfirm, onDismiss }: DataWidgetProps) {
@@ -142,6 +145,23 @@ export function DataWidget({ type, data, status, onConfirm, onDismiss }: DataWid
           />
         </div>
       )}
+
+      {type === "goal" && (
+        <div className="mb-3">
+          <label className="block text-xs text-text-muted mb-1">Goal Description</label>
+          <input
+            type="text"
+            value={editedValue}
+            onChange={(e) => setEditedValue(e.target.value)}
+            className="w-full bg-white border border-border-medium rounded-lg px-3 py-2 text-sm text-text-main focus:border-accent-primary outline-none"
+          />
+          {data.category && (
+            <div className="mt-2 text-xs text-text-muted">
+              Category: <span className="font-medium capitalize">{data.category}</span>
+            </div>
+          )}
+        </div>
+      )}
       
       <div className="flex gap-2">
         <button
@@ -151,7 +171,7 @@ export function DataWidget({ type, data, status, onConfirm, onDismiss }: DataWid
               updatedData.value = parseFloat(editedValue) || data.value;
             } else if (type === "sat" || type === "act") {
               updatedData.value = parseInt(editedValue) || data.value;
-            } else if (type === "activity" || type === "award") {
+            } else if (type === "activity" || type === "award" || type === "goal") {
               updatedData.title = editedValue;
             } else if (type === "school") {
               updatedData.name = editedValue;

@@ -16,7 +16,7 @@ import {
 } from "@/lib/profile";
 
 type WidgetData = {
-  type: "gpa" | "sat" | "act" | "activity" | "award" | "school";
+  type: "gpa" | "sat" | "act" | "activity" | "award" | "school" | "goal";
   data: any;
   status: "draft" | "saved" | "dismissed";
 };
@@ -69,7 +69,7 @@ function AdvisorContent() {
     setTimeout(() => {
       let welcomeMessages: Message[] = [];
 
-      // Check if this is a "check chances" flow
+      // Mode: Check Chances
       if (mode === "chances") {
         if (dreamSchool) {
           setTargetSchool(dreamSchool);
@@ -99,6 +99,53 @@ function AdvisorContent() {
             },
           ];
         }
+      }
+      // Mode: Planning / Set Goals
+      else if (mode === "planning") {
+        welcomeMessages = [
+          {
+            id: "1",
+            role: "assistant",
+            text: `Hi${name ? ` ${name}` : ""}! Let's set some goals for your college journey.`,
+          },
+          {
+            id: "2",
+            role: "assistant",
+            text: "What's something you're working toward? For example:\n\n• Summer research programs (like SIMR, RSI)\n• Competitions (AIME, Science Olympiad)\n• Starting a club or project\n• A leadership position\n\nWhat sounds most relevant to you?",
+          },
+        ];
+      }
+      // Mode: Schools / Build School List
+      else if (mode === "schools") {
+        welcomeMessages = [
+          {
+            id: "1",
+            role: "assistant",
+            text: `Hi${name ? ` ${name}` : ""}! Let's build your school list.`,
+          },
+          {
+            id: "2",
+            role: "assistant",
+            text: dreamSchool 
+              ? `I know ${dreamSchool} is your dream school. What other schools are you considering? I can also suggest some that might be a good fit.`
+              : "Which schools are you interested in? I can help you build a balanced list with reaches, targets, and safeties.",
+          },
+        ];
+      }
+      // Mode: Profile Building
+      else if (mode === "profile") {
+        welcomeMessages = [
+          {
+            id: "1",
+            role: "assistant",
+            text: `Hi${name ? ` ${name}` : ""}! Let's build your profile.`,
+          },
+          {
+            id: "2",
+            role: "assistant",
+            text: "Tell me about yourself — your GPA, test scores, activities, awards. Start with whatever feels easiest.",
+          },
+        ];
       }
       // Initial query from dashboard
       else if (initialQuery) {
@@ -236,8 +283,13 @@ function AdvisorContent() {
       }
       else if (parsed.type === "school") {
         setTargetSchool(parsed.data.name);
+        const schoolResponses: Record<string, string> = {
+          chances: `${parsed.data.name} — added to your list! I'll calculate your chances as you share more info.`,
+          schools: `${parsed.data.name} — great addition! Want to add more schools, or should I suggest some that fit your profile?`,
+          default: `${parsed.data.name} — great choice! I'll track your chances there as we build your profile.`,
+        };
         addAssistantMessage(
-          `${parsed.data.name} — great choice! I'll track your chances there as we build your profile. What's your GPA?`,
+          schoolResponses[mode || "default"] || schoolResponses.default,
           {
             type: "school",
             data: parsed.data,
@@ -245,11 +297,31 @@ function AdvisorContent() {
           }
         );
       }
-      else {
-        // Unknown - ask clarifying question
+      else if (parsed.type === "goal") {
+        const categoryResponses: Record<string, string> = {
+          research: "Summer research is a fantastic goal! Programs like SIMR, RSI, and COSMOS are highly competitive but amazing for your profile.",
+          competition: "Competitions are a great way to stand out. Let's make sure you're preparing strategically.",
+          leadership: "Starting something new shows real initiative. Colleges love seeing students who create impact.",
+          project: "Personal projects demonstrate passion and self-direction. This can really strengthen your application.",
+          other: "Great goal! Let's add it and track your progress.",
+        };
         addAssistantMessage(
-          "I want to make sure I capture that correctly. Is this about your academics, test scores, activities, or something else?"
+          categoryResponses[parsed.data.category] || categoryResponses.other,
+          {
+            type: "goal",
+            data: parsed.data,
+            status: "draft",
+          }
         );
+      }
+      else {
+        // Unknown - context-aware clarifying question
+        const clarifyingQuestions: Record<string, string> = {
+          planning: "I want to make sure I capture that goal correctly. Is this about research, competitions, leadership, or a project?",
+          schools: "Which school did you have in mind? You can name specific schools or describe what you're looking for.",
+          default: "I want to make sure I capture that correctly. Is this about your academics, test scores, activities, or something else?",
+        };
+        addAssistantMessage(clarifyingQuestions[mode || "default"] || clarifyingQuestions.default);
       }
 
       setIsTyping(false);
@@ -314,19 +386,45 @@ function AdvisorContent() {
       }
       setTargetSchool(data.name);
     }
+    else if (type === "goal") {
+      updatedProfile.goals = updatedProfile.goals || [];
+      updatedProfile.goals.push({
+        id: Date.now().toString(),
+        title: data.title || data.label,
+        category: data.category || "other",
+        status: "planning",
+      });
+    }
 
     setProfile(updatedProfile);
     saveProfile(updatedProfile);
 
-    // Add follow-up message
+    // Add context-aware follow-up message
     setTimeout(() => {
-      const followUps = [
-        "What else would you like to share?",
-        "Anything else you want to add?",
-        "Keep going — what else is part of your story?",
-        "What else should I know about you?",
-      ];
-      addAssistantMessage(followUps[Math.floor(Math.random() * followUps.length)]);
+      const followUps: Record<string, string[]> = {
+        planning: [
+          "Great goal! Any other goals you're working toward?",
+          "What else are you planning for this year?",
+          "Any other programs or competitions on your radar?",
+        ],
+        schools: [
+          "What other schools are you considering?",
+          "Want to add more schools, or should I suggest some?",
+          "Any other schools on your list?",
+        ],
+        chances: [
+          "What else can you tell me? More info = more accurate chances.",
+          "Anything else? Activities, awards, test scores?",
+          "Keep going — every detail helps refine your chances.",
+        ],
+        default: [
+          "What else would you like to share?",
+          "Anything else you want to add?",
+          "Keep going — what else is part of your story?",
+        ],
+      };
+      const modeFollowUps = followUps[mode || "default"] || followUps.default;
+      addAssistantMessage(modeFollowUps[Math.floor(Math.random() * modeFollowUps.length)]);
     }, 500);
   };
 

@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Coffee, FlaskConical, Users, Calculator, Target, Sparkles, TrendingUp, MessageCircle } from "lucide-react";
+import { Coffee, FlaskConical, Users, Calculator, Target, Sparkles, TrendingUp, GraduationCap, Calendar, School } from "lucide-react";
 import { ZenInput } from "@/components/dashboard/ZenInput";
 import { FocusWidget } from "@/components/dashboard/FocusWidget";
 import { PillarSnapshot } from "@/components/dashboard/PillarSnapshot";
@@ -77,120 +77,131 @@ function DashboardContent() {
   const encouragement = getEncouragingMessage(userData.feeling, userData.grade);
 
   if (isNewUser) {
-    // Determine what the first task should be based on what we know
-    const hasBasicInfo = userData.name && userData.grade;
-    
     return (
       <>
-        <div className="mb-10">
+        <div className="mb-8">
           <h1 className="font-display font-bold text-3xl md:text-4xl text-text-main mb-2">
-            Welcome{userData.name ? `, ${userData.name}` : " to your workspace"}.
+            Welcome{userData.name ? `, ${userData.name}` : ""}.
           </h1>
           <p className="text-text-muted text-base md:text-lg">
-            {userData.feeling === "Overwhelmed" 
+            {userData.dreamSchool 
+              ? `Let's build your path to ${userData.dreamSchool}.`
+              : userData.feeling === "Overwhelmed" 
               ? "Let's start small. One thing at a time."
-              : "Let's start by building your profile foundation."
+              : "Let's set you up for success."
             }
           </p>
         </div>
 
         <ZenInput />
 
-        {/* Primary CTA: Check Chances (if they have a dream school) */}
-        {userData.dreamSchool && (
-          <div className="bg-gradient-to-br from-accent-surface to-white border border-accent-border rounded-[20px] p-8 shadow-float mb-6 relative overflow-hidden">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-16 h-16 bg-white text-accent-primary rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-accent-border">
-                <TrendingUp className="w-8 h-8" />
-              </div>
-              <div className="flex-1">
-                <h2 className="font-display font-bold text-2xl mb-2 text-text-main">
-                  See your chances at {userData.dreamSchool}
-                </h2>
-                <p className="text-text-muted mb-4 max-w-lg">
-                  Share your GPA and test scores, and I'll show you where you stand. Every detail helps refine your chances.
-                </p>
-                <Link href="/advisor?mode=chances">
-                  <Button>
-                    <TrendingUp className="w-4 h-4" />
-                    Check My Chances
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Secondary CTA: Build Profile */}
-        <div className="bg-white border border-border-subtle rounded-[20px] p-8 shadow-float mb-12 relative overflow-hidden">
+        {/* PRIMARY CTA: Check Chances */}
+        <div className="bg-gradient-to-br from-accent-surface to-white border border-accent-border rounded-[20px] p-8 shadow-float mb-8 relative overflow-hidden">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="w-16 h-16 bg-accent-surface text-accent-primary rounded-2xl flex items-center justify-center shrink-0">
-              {userData.dreamSchool ? <MessageCircle className="w-8 h-8" /> : <Target className="w-8 h-8" />}
+            <div className="w-16 h-16 bg-white text-accent-primary rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-accent-border">
+              <TrendingUp className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <h2 className="font-display font-bold text-2xl mb-2">
+              <div className="text-xs font-bold text-accent-primary uppercase tracking-wider mb-2">Quick Start</div>
+              <h2 className="font-display font-bold text-2xl mb-2 text-text-main">
                 {userData.dreamSchool 
-                  ? "Or, start building your full profile"
-                  : hasBasicInfo 
-                  ? "First Goal: Check Your Chances" 
-                  : "Let's get to know you"
+                  ? `Check your chances at ${userData.dreamSchool}`
+                  : "Check your chances at any school"
                 }
               </h2>
               <p className="text-text-muted mb-4 max-w-lg">
-                {userData.dreamSchool 
-                  ? "Tell me about your activities, awards, and goals. The more I know, the better I can help."
-                  : hasBasicInfo 
-                  ? "To give you accurate chances, I need a baseline. Let's add your GPA or a recent test score."
-                  : "Tell me a bit about yourself so I can personalize your experience."
-                }
+                Share a few details and I'll show you where you stand. Takes about 2 minutes.
               </p>
-              <Link href={userData.dreamSchool ? "/advisor" : "/advisor?mode=chances"}>
-                <Button variant={userData.dreamSchool ? "secondary" : "primary"}>
-                  {userData.dreamSchool 
-                    ? "Chat with Sesame"
-                    : hasBasicInfo 
-                    ? "Check My Chances" 
-                    : "Get Started"
-                  }
+              <Link href="/advisor?mode=chances">
+                <Button>
+                  <TrendingUp className="w-4 h-4" />
+                  Check My Chances
                 </Button>
               </Link>
             </div>
           </div>
-
-          {/* Show what we know so far */}
-          {(userData.grade || userData.dreamSchool) && (
-            <div className="mt-6 pt-6 border-t border-border-subtle">
-              <div className="text-xs font-bold text-text-light uppercase tracking-wider mb-3">What I know so far</div>
-              <div className="flex flex-wrap gap-2">
-                {userData.grade && (
-                  <span className="px-3 py-1.5 bg-bg-sidebar rounded-full text-sm text-text-muted">
-                    📚 {userData.grade}
-                  </span>
-                )}
-                {userData.dreamSchool && (
-                  <span className="px-3 py-1.5 bg-accent-surface text-accent-primary rounded-full text-sm font-medium">
-                    🎯 Dream: {userData.dreamSchool}
-                  </span>
-                )}
-                {userData.feeling && (
-                  <span className="px-3 py-1.5 bg-bg-sidebar rounded-full text-sm text-text-muted">
-                    {userData.feeling === "Overwhelmed" ? "😮‍💨" : userData.feeling === "Confident" ? "💪" : "🌱"} {userData.feeling}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 opacity-50 pointer-events-none grayscale-[30%]">
-          {/* Blurred out content to focus user on the main task */}
+        {/* SECONDARY CTAs: Three options */}
+        <div className="mb-8">
+          <div className="text-xs font-bold text-text-light uppercase tracking-wider mb-4">Or dive deeper</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* Build Profile */}
+            <Link href="/advisor?mode=profile" className="group">
+              <div className="bg-white border border-border-subtle rounded-xl p-5 h-full hover:border-accent-primary hover:shadow-card transition-all">
+                <div className="w-10 h-10 bg-bg-sidebar text-text-muted rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent-surface group-hover:text-accent-primary transition-colors">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-lg mb-1">Build Profile</h3>
+                <p className="text-sm text-text-muted">
+                  Add your GPA, test scores, activities, and awards.
+                </p>
+              </div>
+            </Link>
+
+            {/* Set Goals */}
+            <Link href="/advisor?mode=planning" className="group">
+              <div className="bg-white border border-border-subtle rounded-xl p-5 h-full hover:border-accent-primary hover:shadow-card transition-all">
+                <div className="w-10 h-10 bg-bg-sidebar text-text-muted rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent-surface group-hover:text-accent-primary transition-colors">
+                  <Calendar className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-lg mb-1">Set Goals</h3>
+                <p className="text-sm text-text-muted">
+                  Summer research? Competitions? Let's plan it out.
+                </p>
+              </div>
+            </Link>
+
+            {/* Build School List */}
+            <Link href="/advisor?mode=schools" className="group">
+              <div className="bg-white border border-border-subtle rounded-xl p-5 h-full hover:border-accent-primary hover:shadow-card transition-all">
+                <div className="w-10 h-10 bg-bg-sidebar text-text-muted rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent-surface group-hover:text-accent-primary transition-colors">
+                  <School className="w-5 h-5" />
+                </div>
+                <h3 className="font-display font-bold text-lg mb-1">Build School List</h3>
+                <p className="text-sm text-text-muted">
+                  Add schools, get suggestions, balance your list.
+                </p>
+              </div>
+            </Link>
+
+          </div>
+        </div>
+
+        {/* What we know so far */}
+        {(userData.grade || userData.dreamSchool || userData.feeling) && (
+          <div className="bg-bg-sidebar rounded-xl p-5 mb-8">
+            <div className="text-xs font-bold text-text-light uppercase tracking-wider mb-3">What I know so far</div>
+            <div className="flex flex-wrap gap-2">
+              {userData.grade && (
+                <span className="px-3 py-1.5 bg-white rounded-full text-sm text-text-muted border border-border-subtle">
+                  📚 {userData.grade}
+                </span>
+              )}
+              {userData.dreamSchool && (
+                <span className="px-3 py-1.5 bg-accent-surface text-accent-primary rounded-full text-sm font-medium border border-accent-border">
+                  🎯 Dream: {userData.dreamSchool}
+                </span>
+              )}
+              {userData.feeling && (
+                <span className="px-3 py-1.5 bg-white rounded-full text-sm text-text-muted border border-border-subtle">
+                  {userData.feeling === "Overwhelmed" ? "😮‍💨" : userData.feeling === "Confident" ? "💪" : userData.feeling === "Behind" ? "🏃" : "🌱"} {userData.feeling}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Blurred preview of full dashboard */}
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10 opacity-40 pointer-events-none grayscale-[40%]">
           <div className="flex flex-col gap-8">
             <PillarSnapshot />
           </div>
           <div className="flex flex-col gap-8">
             <div>
               <h3 className="font-display font-bold text-lg mb-5">Timeline</h3>
-              <Card className="h-64 flex items-center justify-center border-dashed">
+              <Card className="h-48 flex items-center justify-center border-dashed">
                 <span className="text-text-muted text-sm">Your timeline will appear here</span>
               </Card>
             </div>

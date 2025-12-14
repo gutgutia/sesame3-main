@@ -37,6 +37,16 @@ export type School = {
   deadline?: string;
 };
 
+export type Goal = {
+  id: string;
+  title: string;
+  category: "research" | "competition" | "leadership" | "project" | "other";
+  status: "planning" | "in_progress" | "completed";
+  targetDate?: string;
+  description?: string;
+  opportunities?: string[]; // Related opportunity names
+};
+
 export type StudentProfile = {
   // From onboarding
   onboarding?: {
@@ -77,6 +87,9 @@ export type StudentProfile = {
   
   // Schools list
   schools?: School[];
+  
+  // Goals
+  goals?: Goal[];
 };
 
 const PROFILE_KEY = "sesame3_profile";
@@ -289,9 +302,18 @@ export function calculateChances(profile: StudentProfile, schoolName: string): {
   return { chance, tier, breakdown, confidence };
 }
 
+// Add a goal
+export function addGoal(goal: Omit<Goal, "id">): StudentProfile {
+  const profile = loadProfile();
+  const newGoal: Goal = { ...goal, id: Date.now().toString() };
+  profile.goals = [...(profile.goals || []), newGoal];
+  saveProfile(profile);
+  return profile;
+}
+
 // Parse user input for profile data
 export type ParsedData = {
-  type: "gpa" | "sat" | "act" | "activity" | "award" | "school" | "unknown";
+  type: "gpa" | "sat" | "act" | "activity" | "award" | "school" | "goal" | "unknown";
   data: any;
   confidence: "high" | "medium" | "low";
   original: string;
@@ -392,15 +414,38 @@ export function parseUserInput(text: string): ParsedData {
     };
   }
   
+  // Goal patterns
+  const goalKeywords = {
+    research: ["research", "lab", "simr", "rsi", "simons", "scientist", "publication"],
+    competition: ["competition", "olympiad", "aime", "usamo", "usaco", "science bowl", "mathcounts", "qualifier"],
+    leadership: ["start a", "found", "lead", "president of", "create a", "launch"],
+    project: ["project", "app", "website", "business", "nonprofit", "initiative"],
+  };
+  
+  for (const [category, keywords] of Object.entries(goalKeywords)) {
+    if (keywords.some(k => lower.includes(k))) {
+      return {
+        type: "goal",
+        data: {
+          title: text,
+          category: category as Goal["category"],
+          label: `${category.charAt(0).toUpperCase() + category.slice(1)} Goal`
+        },
+        confidence: "medium",
+        original: text
+      };
+    }
+  }
+  
   // School interest patterns
   const schoolKeywords = ["want to go to", "dream school", "interested in", "apply to", "applying to", "chances at", "get into"];
   const hasSchoolIntent = schoolKeywords.some(k => lower.includes(k));
   
-  if (hasSchoolIntent) {
-    // Try to extract school name
-    const commonSchools = ["stanford", "harvard", "yale", "mit", "princeton", "columbia", "uchicago", "chicago", "penn", "upenn", "duke", "caltech", "northwestern", "jhu", "johns hopkins", "brown", "cornell", "dartmouth", "ucla", "berkeley", "uc berkeley", "michigan", "nyu", "usc"];
-    const foundSchool = commonSchools.find(s => lower.includes(s));
-    
+  // Common school names
+  const commonSchools = ["stanford", "harvard", "yale", "mit", "princeton", "columbia", "uchicago", "chicago", "penn", "upenn", "duke", "caltech", "northwestern", "jhu", "johns hopkins", "brown", "cornell", "dartmouth", "ucla", "berkeley", "uc berkeley", "michigan", "nyu", "usc", "georgia tech", "cmu", "carnegie mellon", "notre dame", "vanderbilt", "rice", "emory", "washu", "tufts", "boston college", "unc", "virginia", "uva"];
+  const foundSchool = commonSchools.find(s => lower.includes(s));
+  
+  if (hasSchoolIntent || foundSchool) {
     if (foundSchool) {
       // Normalize school name
       const schoolNames: Record<string, string> = {
@@ -428,6 +473,19 @@ export function parseUserInput(text: string): ParsedData {
         "michigan": "Michigan",
         "nyu": "NYU",
         "usc": "USC",
+        "georgia tech": "Georgia Tech",
+        "cmu": "Carnegie Mellon",
+        "carnegie mellon": "Carnegie Mellon",
+        "notre dame": "Notre Dame",
+        "vanderbilt": "Vanderbilt",
+        "rice": "Rice",
+        "emory": "Emory",
+        "washu": "WashU",
+        "tufts": "Tufts",
+        "boston college": "Boston College",
+        "unc": "UNC Chapel Hill",
+        "virginia": "UVA",
+        "uva": "UVA",
       };
       
       return {

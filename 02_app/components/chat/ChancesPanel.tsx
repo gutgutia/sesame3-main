@@ -12,7 +12,9 @@ import {
   Minus,
   TrendingUp,
   Target,
-  Sparkles
+  Sparkles,
+  School,
+  Calendar
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StudentProfile, calculateChances, getProfileCompleteness } from "@/lib/profile";
@@ -235,10 +237,20 @@ export function ChancesPanel({ profile, targetSchool }: ChancesPanelProps) {
           {/* Schools */}
           {profile.schools && profile.schools.length > 0 && (
             <ProfileItem 
-              icon={FlaskConical}
+              icon={School}
               label="Schools"
               value={`${profile.schools.length} on list`}
-              detail={profile.schools.slice(0, 2).map(s => s.name).join(", ")}
+              detail={profile.schools.slice(0, 3).map(s => s.name).join(", ")}
+            />
+          )}
+
+          {/* Goals */}
+          {profile.goals && profile.goals.length > 0 && (
+            <ProfileItem 
+              icon={Calendar}
+              label="Goals"
+              value={`${profile.goals.length} set`}
+              detail={profile.goals.slice(0, 2).map(g => g.title).join(", ")}
             />
           )}
           
@@ -248,7 +260,9 @@ export function ChancesPanel({ profile, targetSchool }: ChancesPanelProps) {
            !profile.testing?.sat && 
            !profile.testing?.act &&
            (!profile.activities || profile.activities.length === 0) &&
-           (!profile.awards || profile.awards.length === 0) && (
+           (!profile.awards || profile.awards.length === 0) &&
+           (!profile.schools || profile.schools.length === 0) &&
+           (!profile.goals || profile.goals.length === 0) && (
             <div className="flex flex-col items-center justify-center py-8 text-text-muted opacity-60">
               <Sparkles className="w-8 h-8 mb-3" />
               <p className="text-sm text-center">
