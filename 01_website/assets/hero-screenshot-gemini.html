@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesame3 Hero Screenshot - Marketing Grade</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      /* Warm Foundation */
+      --bg-app: #FDFCF8;
+      --bg-sidebar: #F7F5F0;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #FCFCFA;
+      
+      /* Trustworthy Accent (Teal) - Slightly boosted for marketing pop */
+      --accent-primary: #12756A; 
+      --accent-hover: #0F6158;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C8EAE6;
+      
+      /* Text & Functional */
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #ECEAE4;
+      --border-medium: #D4D0C8;
+      
+      /* Status Colors */
+      --status-success-bg: #EAF7ED;
+      --status-success-text: #145935;
+      --status-warning-bg: #FEFCE8;
+      --status-warning-text: #854D0E;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      /* Marketing Background - Subtle Mesh Gradient Idea */
+      background: radial-gradient(circle at 50% 0%, #F5F2EB 0%, #EBE8E0 100%);
+      padding: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 24px; /* Premium curvature */
+      /* "World Class" Shadow - Layered */
+      box-shadow: 
+        0 0 0 1px rgba(0,0,0,0.06), /* Crisp border ring */
+        0 32px 64px -12px rgba(45, 42, 38, 0.12), /* Deep diffused shadow */
+        0 2px 4px rgba(45, 42, 38, 0.02); /* Tight ambient shadow */
+      overflow: hidden;
+      max-width: 1200px; /* Cinematic width */
+      width: 100%;
+      position: relative;
+    }
+
+    /* Browser Chrome - Minimal & Mac-like */
+    .browser-bar {
+      background: #FDFCF8; /* Matches app bg for seamless look */
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+    }
+    .browser-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .browser-dot.red { background: #FF5F57; border: 1px solid rgba(0,0,0,0.1); }
+    .browser-dot.yellow { background: #FFBD2E; border: 1px solid rgba(0,0,0,0.1); }
+    .browser-dot.green { background: #28CA42; border: 1px solid rgba(0,0,0,0.1); }
+    
+    .browser-address-bar {
+      flex: 1;
+      max-width: 400px;
+      margin: 0 auto;
+      background: rgba(0,0,0,0.03);
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-light);
+      font-size: 11px;
+      font-weight: 500;
+      gap: 6px;
+    }
+
+    /* App Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 720px; /* Taller for grandeur */
+      background: var(--bg-app);
+    }
+
+    /* Sidebar - Refined */
+    .sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 48px;
+      padding-left: 8px;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent-primary), #0D5F56);
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(18, 117, 106, 0.2);
+    }
+    .logo-text {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text-main);
+      letter-spacing: -0.01em;
+    }
+    
+    .nav-group { margin-bottom: 32px; }
+    .nav-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-light);
+      font-weight: 700;
+      padding-left: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .nav-item:hover {
+      background: rgba(0,0,0,0.03);
+      color: var(--text-main);
+    }
+    .nav-item.active {
+      background: white;
+      color: var(--accent-primary);
+      font-weight: 600;
+      box-shadow: 
+        0 1px 3px rgba(0,0,0,0.05),
+        0 4px 8px -2px rgba(0,0,0,0.02);
+    }
+    .nav-item i { width: 18px; height: 18px; stroke-width: 2.2px; }
+
+    /* User Profile Pill */
+    .sidebar-user {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .user-avatar {
+      width: 40px; height: 40px;
+      background: #F3E8FF; /* Subtle purple for user distinct from app teal */
+      color: #7E22CE;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 48px 64px;
+      overflow-y: hidden; /* Clean cut */
+      background: var(--bg-app);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Greeting - Cinematic */
+    .hero-header {
+      margin-bottom: 40px;
+      animation: fadeIn 0.5s ease-out;
+    }
+    .hero-greeting {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 36px;
+      font-weight: 800; /* Bolder */
+      color: var(--text-main);
+      margin-bottom: 8px;
+      letter-spacing: -0.03em;
+    }
+    .hero-subtitle {
+      color: var(--text-muted);
+      font-size: 17px;
+      line-height: 1.5;
+      max-width: 600px;
+    }
+
+    /* The "Zen Input" - Marketing centerpiece */
+    .zen-container {
+      margin-bottom: 48px;
+    }
+    .zen-input {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 10px;
+      padding-left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 
+        0 8px 24px -4px rgba(45, 42, 38, 0.06), /* Lifted */
+        0 2px 6px -1px rgba(45, 42, 38, 0.04);
+      height: 72px; /* Substantial touch target */
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .zen-input:hover {
+      border-color: var(--accent-border);
+      transform: translateY(-1px);
+    }
+    
+    .zen-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 18px;
+      color: var(--text-main);
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+    }
+    .zen-input input::placeholder { color: #A8A29E; }
+    
+    .zen-actions { display: flex; gap: 8px; }
+    .zen-btn {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .zen-btn.primary {
+      background: var(--accent-primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(18, 117, 106, 0.2);
+    }
+    .zen-btn.secondary {
+      background: transparent;
+      color: var(--text-muted);
+    }
+    .zen-btn.secondary:hover { background: var(--bg-sidebar); color: var(--text-main); }
+
+    /* Focus Widget - The "Active" Task */
+    .focus-widget {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 0;
+      display: flex;
+      box-shadow: 0 8px 32px rgba(45, 42, 38, 0.04);
+      margin-bottom: 40px;
+      overflow: hidden;
+      position: relative;
+    }
+    .focus-widget::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0; width: 40%;
+      background: linear-gradient(to left, rgba(250, 250, 249, 1), rgba(255,255,255,0));
+      pointer-events: none;
+    }
+
+    .focus-content {
+      flex: 1;
+      padding: 36px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .focus-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+      padding: 6px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    .focus-title {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+    
+    .focus-status {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    /* The Advisor Insight - Styled Box */
+    .advisor-box {
+      background: #FDFCF8;
+      border: 1px solid var(--accent-border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .advisor-avatar-small {
+      width: 24px; height: 24px;
+      background: var(--accent-primary);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+    .advisor-text {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+    .advisor-text strong { color: var(--accent-primary); font-weight: 600; }
+
+    /* Dashboard Cards Grid */
+    .grid-row {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* Stat Viz */
+    .stat-big {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: var(--status-success-bg);
+      color: var(--status-success-text);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    /* Ticket Items */
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ticket-item {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      background: #FAFAF9;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .ticket-item:hover {
+      background: white;
+      border-color: var(--border-subtle);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .school-logo {
+      width: 32px; height: 32px;
+      background: white;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-right: 12px;
+    }
+    .school-details { flex: 1; }
+    .school-name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+    .school-meta { font-size: 12px; color: var(--text-muted); }
+    
+    .chance-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    .chance-pill.high {
+      background: var(--status-success-bg);
+      border-color: transparent;
+      color: var(--status-success-text);
+    }
+
+    /* Floating Graphic Elements for "Pop" */
+    .cursor-mock {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 24px; height: 24px;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <!-- Browser Chrome -->
+    <div class="browser-bar">
+      <div class="traffic-lights">
+        <div class="browser-dot red"></div>
+        <div class="browser-dot yellow"></div>
+        <div class="browser-dot green"></div>
+      </div>
+      <div class="browser-address-bar">
+        <i data-lucide="lock" style="width: 10px; height: 10px;"></i>
+        app.sesame3.com
+      </div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-mark">S3</div>
+          <span class="logo-text">Sesame</span>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-item active">
+            <i data-lucide="layout-grid"></i>
+            Dashboard
+          </div>
+          <div class="nav-item">
+            <i data-lucide="compass"></i>
+            Plan
+          </div>
+          <div class="nav-item">
+            <i data-lucide="book-open"></i>
+            Schools
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <div class="nav-label">Portfolio</div>
+          <div class="nav-item">
+            <i data-lucide="graduation-cap"></i>
+            Academics
+          </div>
+          <div class="nav-item">
+            <i data-lucide="trophy"></i>
+            Awards
+          </div>
+        </div>
+
+        <div class="sidebar-user">
+          <div class="user-avatar">A</div>
+          <div style="font-size: 13px; font-weight: 600; color: var(--text-main);">Alex Chen</div>
+          <i data-lucide="more-horizontal" style="width: 16px; height: 16px; color: var(--text-light); margin-left: auto;"></i>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Hero Header -->
+        <div class="hero-header">
+          <h1 class="hero-greeting">Good afternoon, Alex.</h1>
+          <p class="hero-subtitle">You're making great progress. Your profile strength just increased by <span style="color: var(--accent-primary); font-weight: 600;">4%</span>.</p>
+        </div>
+
+        <!-- Zen Input -->
+        <div class="zen-container">
+          <div class="zen-input">
+            <i data-lucide="sparkles" style="color: var(--accent-primary); width: 22px; height: 22px;"></i>
+            <input type="text" placeholder="Ask for advice on essays, chances, or deadlines..." value="Analyze my chances for Stanford based on my new SAT score">
+            <div class="zen-actions">
+              <button class="zen-btn secondary"><i data-lucide="mic" style="width: 20px; height: 20px;"></i></button>
+              <button class="zen-btn primary"><i data-lucide="arrow-up" style="width: 20px; height: 20px;"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Focus Widget -->
+        <div class="focus-widget">
+          <div class="focus-content">
+            <div class="focus-tag">
+              <i data-lucide="flame" style="width: 12px; height: 12px;"></i>
+              High Priority
+            </div>
+            <div class="focus-title">Apply to SIMR Research Program</div>
+            <div class="focus-status">
+              <span><i data-lucide="calendar" style="width: 16px; height: 16px; display: inline; vertical-align: text-bottom;"></i> Due in 3 days</span>
+              <span>•</span>
+              <span style="color: var(--accent-primary);">2 tasks remaining</span>
+            </div>
+
+            <!-- The Advisor Insight Box -->
+            <div class="advisor-box">
+              <div class="advisor-avatar-small"><i data-lucide="sparkles" style="width: 14px; height: 14px;"></i></div>
+              <div class="advisor-text">
+                Your robotics experience is a perfect hook for Essay 2. <strong>Emphasize the leadership aspect</strong> to boost your alignment score.
+              </div>
+            </div>
+          </div>
+          <!-- Right side graphic (implied timeline) -->
+          <div style="width: 200px; border-left: 1px solid var(--border-subtle); background: #FAFAF9; padding: 24px;">
+             <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 16px;">Next Steps</div>
+             <div style="display: flex; gap: 12px; margin-bottom: 16px; opacity: 0.5;">
+               <div style="width: 16px; height: 16px; border-radius: 50%; background: var(--accent-primary);"></div>
+               <div style="font-size: 13px; text-decoration: line-through;">Draft Essay 1</div>
+             </div>
+             <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+               <div style="width: 16px; height: 16px; border-radius: 50%; border: 4px solid var(--accent-primary);"></div>
+               <div style="font-size: 13px; font-weight: 600;">Draft Essay 2</div>
+             </div>
+          </div>
+        </div>
+
+        <!-- Grid Cards -->
+        <div class="grid-row">
+          <!-- Stats Card -->
+          <div class="card">
+             <div class="card-title" style="color: var(--text-muted); margin-bottom: 16px;">
+               <i data-lucide="bar-chart-2" style="width: 18px; height: 18px;"></i>
+               Testing Profile
+             </div>
+             <div class="stat-big">1540</div>
+             <div class="stat-label">SAT Superscore</div>
+             <div class="trend-badge">
+               <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+               Top 2%
+             </div>
+          </div>
+
+          <!-- Schools Ticket -->
+          <div class="card" style="border-left: 4px solid var(--accent-primary);">
+            <div class="card-header">
+              <div class="card-title">Dream Schools</div>
+              <i data-lucide="arrow-right" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+            </div>
+            
+            <div class="ticket-list">
+              <div class="ticket-item">
+                <div class="school-logo">S</div>
+                <div class="school-details">
+                  <div class="school-name">Stanford</div>
+                  <div class="school-meta">Reach</div>
+                </div>
+                <div class="chance-pill">14%</div>
+              </div>
+              <div class="ticket-item">
+                <div class="school-logo" style="color: #B45309;">G</div>
+                <div class="school-details">
+                  <div class="school-name">Georgia Tech</div>
+                  <div class="school-meta">Target</div>
+                </div>
+                <div class="chance-pill high">46%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

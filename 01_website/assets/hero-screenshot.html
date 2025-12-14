@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Screenshot - Dashboard Preview</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-app: #F9F8F6;
+      --bg-sidebar: #F3F1ED;
+      --bg-card: #FFFFFF;
+      --accent-primary: #12756A;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C5E4DF;
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #E8E5DF;
+      --border-medium: #D4D0C8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F5F5;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 
+        0 25px 50px -12px rgba(0,0,0,0.15),
+        0 0 0 1px rgba(0,0,0,0.05);
+      overflow: hidden;
+      max-width: 1100px;
+      width: 100%;
+    }
+
+    /* Browser Chrome */
+    .browser-bar {
+      background: #F5F4F2;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .browser-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #E0DCD4;
+    }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FFBD2E; }
+    .browser-dot.green { background: #28CA42; }
+    .browser-url {
+      flex: 1;
+      margin-left: 12px;
+      background: white;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* App Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 560px;
+      background: var(--bg-app);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+    .logo-mark {
+      width: 32px; height: 32px;
+      background: var(--text-main);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .logo-text {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-main);
+    }
+    .nav-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .nav-item.active {
+      background: white;
+      color: var(--accent-primary);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .nav-item i { width: 18px; height: 18px; stroke-width: 2; }
+    .sidebar-user {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+    .user-avatar {
+      width: 36px; height: 36px;
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 32px 40px;
+      overflow: hidden;
+    }
+
+    /* Greeting */
+    .greeting {
+      margin-bottom: 24px;
+    }
+    .greeting h1 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .greeting p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    /* Chat Input */
+    .zen-input {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .zen-input-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .zen-input-label i { width: 14px; height: 14px; color: var(--accent-primary); }
+    .zen-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 15px;
+      color: var(--text-main);
+      background: transparent;
+    }
+    .zen-input input::placeholder { color: var(--text-light); }
+    .zen-input button {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--accent-primary);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .action-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+    .action-pill i { width: 14px; height: 14px; color: var(--text-muted); }
+
+    /* Focus Widget */
+    .focus-widget {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .focus-main h3 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+    .focus-title {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+    .focus-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .focus-advice {
+      background: var(--accent-surface);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--accent-primary);
+      line-height: 1.5;
+    }
+    .focus-advice strong {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    /* Timeline */
+    .timeline {
+      border-left: 2px solid var(--border-subtle);
+      padding-left: 16px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -21px;
+      top: 4px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--border-medium);
+      border: 2px solid white;
+    }
+    .timeline-item.active::before {
+      background: var(--accent-primary);
+    }
+    .timeline-item.done::before {
+      background: var(--accent-primary);
+    }
+    .timeline-date {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-light);
+      margin-bottom: 2px;
+    }
+    .timeline-item.active .timeline-date {
+      color: var(--accent-primary);
+    }
+    .timeline-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+    .timeline-item.done .timeline-title {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    /* Three Pillars */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .pillar-card {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .pillar-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .pillar-icon {
+      width: 32px; height: 32px;
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pillar-icon i { width: 16px; height: 16px; }
+    .pillar-title {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    .pillar-stat {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stat-box {
+      flex: 1;
+      background: var(--bg-sidebar);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .pillar-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pillar-meta i { width: 12px; height: 12px; }
+
+    /* Goal item */
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--bg-sidebar);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .goal-emoji { font-size: 14px; }
+    .goal-text {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .goal-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 100px;
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    /* School highlight */
+    .school-highlight {
+      background: var(--accent-surface);
+      border: 1px solid var(--accent-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .school-label {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-primary);
+      margin-bottom: 2px;
+    }
+    .school-name {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    .school-chance {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <!-- Browser Chrome -->
+    <div class="browser-bar">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+      <div class="browser-url">app.sesame3.com</div>
+    </div>
+
+    <!-- App Layout -->
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-mark">S3</div>
+          <span class="logo-text">Sesame</span>
+        </div>
+        
+        <div class="nav-items">
+          <div class="nav-item active">
+            <i data-lucide="layout-grid"></i>
+            Home
+          </div>
+          <div class="nav-item">
+            <i data-lucide="compass"></i>
+            Plan
+          </div>
+          <div class="nav-item">
+            <i data-lucide="user"></i>
+            Profile
+          </div>
+          <div class="nav-item">
+            <i data-lucide="book-open"></i>
+            Schools
+          </div>
+          <div class="nav-item">
+            <i data-lucide="search"></i>
+            Discover
+          </div>
+        </div>
+
+        <div class="sidebar-user">
+          <div class="user-avatar">A</div>
+          <div class="user-name">Alex's Space</div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Greeting -->
+        <div class="greeting">
+          <h1>Good afternoon, Alex.</h1>
+          <p>You're doing great. Let's keep that momentum going.</p>
+        </div>
+
+        <!-- Zen Input -->
+        <div>
+          <div class="zen-input-label">
+            <i data-lucide="sparkles"></i>
+            Ask your advisor anything
+          </div>
+          <div class="zen-input">
+            <input type="text" placeholder="What's on your mind?">
+            <button><i data-lucide="arrow-up" style="width: 18px; height: 18px;"></i></button>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <div class="action-pill">
+            <i data-lucide="trending-up"></i>
+            Check Chances
+          </div>
+          <div class="action-pill">
+            <i data-lucide="message-circle"></i>
+            Ask Advisor
+          </div>
+          <div class="action-pill">
+            <i data-lucide="pen-line"></i>
+            Update Profile
+          </div>
+          <div class="action-pill">
+            <i data-lucide="compass"></i>
+            Explore
+          </div>
+        </div>
+
+        <!-- Focus Widget -->
+        <div class="focus-widget">
+          <div class="focus-main">
+            <h3>Current Focus</h3>
+            <div class="focus-title">Apply to SIMR Summer Research</div>
+            <div class="focus-subtitle">Research · Due Jan 15 · 2 of 4 tasks done</div>
+            <div class="focus-advice">
+              <strong><i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> Advisor</strong>
+              Focus on Essay 2 today. Your research experience in robotics is a strong hook — lead with that.
+            </div>
+          </div>
+          <div class="timeline">
+            <div class="timeline-item done">
+              <div class="timeline-date">Dec 10</div>
+              <div class="timeline-title">Draft Essay 1</div>
+            </div>
+            <div class="timeline-item active">
+              <div class="timeline-date">Today</div>
+              <div class="timeline-title">Draft Essay 2</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Jan 10</div>
+              <div class="timeline-title">Upload Transcript</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-date">Jan 15</div>
+              <div class="timeline-title">Submit</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Three Pillars -->
+        <div class="pillars">
+          <!-- Profile Pillar -->
+          <div class="pillar-card">
+            <div class="pillar-header">
+              <div class="pillar-icon"><i data-lucide="graduation-cap"></i></div>
+              <div class="pillar-title">Profile</div>
+            </div>
+            <div class="pillar-stat">
+              <div class="stat-box">
+                <div class="stat-label">GPA</div>
+                <div class="stat-value">3.92</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">SAT</div>
+                <div class="stat-value">1520</div>
+              </div>
+            </div>
+            <div class="pillar-meta">
+              <i data-lucide="users"></i>
+              3 activities · 2 awards
+            </div>
+          </div>
+
+          <!-- Goals Pillar -->
+          <div class="pillar-card">
+            <div class="pillar-header">
+              <div class="pillar-icon"><i data-lucide="target"></i></div>
+              <div class="pillar-title">Goals</div>
+            </div>
+            <div class="goal-item">
+              <span class="goal-emoji">🔬</span>
+              <span class="goal-text">Apply to SIMR</span>
+              <span class="goal-badge">Active</span>
+            </div>
+            <div class="goal-item">
+              <span class="goal-emoji">🏆</span>
+              <span class="goal-text">Qualify for USAMO</span>
+              <span class="goal-badge" style="background: #F5F4F2; color: var(--text-muted);">Planned</span>
+            </div>
+          </div>
+
+          <!-- Schools Pillar -->
+          <div class="pillar-card">
+            <div class="pillar-header">
+              <div class="pillar-icon"><i data-lucide="school"></i></div>
+              <div class="pillar-title">Schools</div>
+            </div>
+            <div class="school-highlight">
+              <div class="school-label">Dream School</div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="school-name">Stanford</div>
+                <div class="school-chance">
+                  <i data-lucide="trending-up" style="width: 14px; height: 14px;"></i>
+                  ~14%
+                </div>
+              </div>
+            </div>
+            <div class="pillar-meta">5 schools on your list</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Screenshot - Your AI Advisor</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-app: #F9F8F6;
+      --bg-sidebar: #F3F1ED;
+      --bg-card: #FFFFFF;
+      --accent-primary: #12756A;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C5E4DF;
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #E8E5DF;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F5F5;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      overflow: hidden;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .browser-bar {
+      background: #F5F4F2;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FFBD2E; }
+    .browser-dot.green { background: #28CA42; }
+
+    .content {
+      padding: 32px;
+      background: var(--bg-app);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-surface);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .header h2 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .chat-container {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .chat-messages {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      max-width: 85%;
+    }
+    .message.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+    .message-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .message.assistant .message-avatar {
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+    }
+    .message.user .message-avatar {
+      background: var(--bg-sidebar);
+      color: var(--text-muted);
+    }
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .message.assistant .message-bubble {
+      background: var(--bg-sidebar);
+      color: var(--text-main);
+      border-bottom-left-radius: 4px;
+    }
+    .message.user .message-bubble {
+      background: var(--accent-primary);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Data Widget */
+    .data-widget {
+      background: white;
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+    .widget-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .widget-icon {
+      width: 28px; height: 28px;
+      background: var(--accent-surface);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .widget-icon i { width: 14px; height: 14px; }
+    .widget-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-primary);
+    }
+    .widget-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+    .widget-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .widget-btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+    .widget-btn.confirm {
+      background: var(--accent-primary);
+      color: white;
+    }
+    .widget-btn.edit {
+      background: var(--bg-sidebar);
+      color: var(--text-muted);
+    }
+
+    .chat-input {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .chat-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: var(--text-main);
+      background: transparent;
+    }
+    .chat-input input::placeholder {
+      color: var(--text-light);
+    }
+    .chat-input button {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--accent-primary);
+      border: none;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .chat-input button i { width: 18px; height: 18px; }
+
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px 12px;
+      background: var(--bg-sidebar);
+      border-radius: 12px;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 6px; height: 6px;
+      background: var(--text-light);
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <div class="browser-bar">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <div class="header-icon">
+          <i data-lucide="message-circle" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div>
+          <h2>Your AI Advisor</h2>
+          <p>Like a private counselor, available 24/7</p>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages">
+          <!-- Assistant Message -->
+          <div class="message assistant">
+            <div class="message-avatar">
+              <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div>
+              <div class="message-bubble">
+                Hi Alex! Let's build your profile. What would you like to start with — academics, test scores, or activities?
+              </div>
+            </div>
+          </div>
+
+          <!-- User Message -->
+          <div class="message user">
+            <div class="message-avatar">A</div>
+            <div class="message-bubble">
+              I have a 3.92 GPA unweighted and got a 1520 on my SAT
+            </div>
+          </div>
+
+          <!-- Assistant with Widget -->
+          <div class="message assistant">
+            <div class="message-avatar">
+              <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+            </div>
+            <div>
+              <div class="message-bubble">
+                Great scores! That puts you in a strong position. Let me save this to your profile:
+              </div>
+              <div class="data-widget">
+                <div class="widget-header">
+                  <div class="widget-icon"><i data-lucide="graduation-cap"></i></div>
+                  <div class="widget-label">Unweighted GPA</div>
+                </div>
+                <div class="widget-value">3.92</div>
+                <div class="widget-actions">
+                  <button class="widget-btn confirm">
+                    <i data-lucide="check" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                    Confirm
+                  </button>
+                  <button class="widget-btn edit">Edit</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input">
+          <input type="text" placeholder="Tell me more about yourself...">
+          <button><i data-lucide="arrow-up"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

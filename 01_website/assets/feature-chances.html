@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Screenshot - Check Your Chances</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-app: #F9F8F6;
+      --bg-sidebar: #F3F1ED;
+      --bg-card: #FFFFFF;
+      --accent-primary: #12756A;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C5E4DF;
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #E8E5DF;
+      --reach: #DC2626;
+      --reach-bg: #FEF2F2;
+      --target: #F59E0B;
+      --target-bg: #FFFBEB;
+      --safety: #22C55E;
+      --safety-bg: #F0FDF4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F5F5;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      overflow: hidden;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .browser-bar {
+      background: #F5F4F2;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FFBD2E; }
+    .browser-dot.green { background: #28CA42; }
+
+    .content {
+      padding: 32px;
+      background: var(--bg-app);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-surface);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .header h2 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .chances-card {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .school-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .school-logo {
+      width: 48px; height: 48px;
+      background: #8C1515;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+    }
+    .school-info h3 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .school-info p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .chance-display {
+      margin-left: auto;
+      text-align: center;
+    }
+    .chance-number {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--text-main);
+    }
+    .chance-tier {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: var(--reach-bg);
+      color: var(--reach);
+    }
+
+    .factors-section {
+      padding: 24px;
+    }
+    .factors-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .factor-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .factor-label {
+      width: 80px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+    .factor-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-sidebar);
+      border-radius: 100px;
+      position: relative;
+      overflow: visible;
+    }
+    .factor-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.5s ease;
+    }
+    .factor-fill.strong { background: var(--accent-primary); }
+    .factor-fill.ok { background: var(--target); }
+    .factor-fill.gap { background: var(--reach); }
+    .factor-threshold {
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      width: 2px;
+      background: rgba(0,0,0,0.3);
+    }
+    .factor-icon {
+      width: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .factor-icon i { width: 16px; height: 16px; }
+    .factor-icon.strong { color: var(--accent-primary); }
+    .factor-icon.ok { color: var(--target); }
+    .factor-icon.gap { color: var(--reach); }
+
+    .advice-box {
+      background: var(--accent-surface);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 20px;
+    }
+    .advice-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+    }
+    .advice-header i { width: 16px; height: 16px; }
+    .advice-text {
+      font-size: 14px;
+      color: var(--accent-primary);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <div class="browser-bar">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <div class="header-icon">
+          <i data-lucide="trending-up" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div>
+          <h2>Check Your Chances</h2>
+          <p>See where you stand at any school</p>
+        </div>
+      </div>
+
+      <div class="chances-card">
+        <div class="school-header">
+          <div class="school-logo">S</div>
+          <div class="school-info">
+            <h3>Stanford University</h3>
+            <p>Stanford, CA</p>
+          </div>
+          <div class="chance-display">
+            <div class="chance-number">14%</div>
+            <div class="chance-tier">Reach</div>
+          </div>
+        </div>
+
+        <div class="factors-section">
+          <div class="factors-title">Profile Match Report</div>
+          
+          <div class="factor-row">
+            <div class="factor-label">Academics</div>
+            <div class="factor-bar">
+              <div class="factor-threshold" style="left: 90%;"></div>
+              <div class="factor-fill strong" style="width: 92%;"></div>
+            </div>
+            <div class="factor-icon strong"><i data-lucide="check"></i></div>
+          </div>
+
+          <div class="factor-row">
+            <div class="factor-label">Testing</div>
+            <div class="factor-bar">
+              <div class="factor-threshold" style="left: 85%;"></div>
+              <div class="factor-fill strong" style="width: 88%;"></div>
+            </div>
+            <div class="factor-icon strong"><i data-lucide="check"></i></div>
+          </div>
+
+          <div class="factor-row">
+            <div class="factor-label">Activities</div>
+            <div class="factor-bar">
+              <div class="factor-threshold" style="left: 95%;"></div>
+              <div class="factor-fill ok" style="width: 70%;"></div>
+            </div>
+            <div class="factor-icon ok"><i data-lucide="minus"></i></div>
+          </div>
+
+          <div class="factor-row">
+            <div class="factor-label">Awards</div>
+            <div class="factor-bar">
+              <div class="factor-threshold" style="left: 80%;"></div>
+              <div class="factor-fill gap" style="width: 40%;"></div>
+            </div>
+            <div class="factor-icon gap"><i data-lucide="alert-circle"></i></div>
+          </div>
+
+          <div class="advice-box">
+            <div class="advice-header">
+              <i data-lucide="sparkles"></i>
+              Advisor Insight
+            </div>
+            <div class="advice-text">
+              Your academics are strong for Stanford. Focus on securing a national-level award (like AIME or a research publication) to close the gap in your profile.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

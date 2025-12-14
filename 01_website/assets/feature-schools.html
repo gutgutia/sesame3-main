@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Screenshot - Smart School List</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-app: #F9F8F6;
+      --bg-sidebar: #F3F1ED;
+      --bg-card: #FFFFFF;
+      --accent-primary: #12756A;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C5E4DF;
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #E8E5DF;
+      --reach: #DC2626;
+      --reach-bg: #FEF2F2;
+      --target: #F59E0B;
+      --target-bg: #FFFBEB;
+      --safety: #22C55E;
+      --safety-bg: #F0FDF4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F5F5;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      overflow: hidden;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .browser-bar {
+      background: #F5F4F2;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FFBD2E; }
+    .browser-dot.green { background: #28CA42; }
+
+    .content {
+      padding: 32px;
+      background: var(--bg-app);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-surface);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .header h2 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .balance-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .balance-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .balance-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .balance-dot.reach { background: var(--reach); }
+    .balance-dot.target { background: var(--target); }
+    .balance-dot.safety { background: var(--safety); }
+    .balance-item.reach { color: var(--reach); }
+    .balance-item.target { color: var(--target); }
+    .balance-item.safety { color: var(--safety); }
+
+    .school-row {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+      transition: all 0.15s;
+    }
+    .school-row:hover {
+      border-color: var(--accent-primary);
+      transform: translateX(4px);
+    }
+    .school-logo {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .school-info {
+      flex: 1;
+    }
+    .school-name {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-main);
+    }
+    .school-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .school-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+    }
+    .school-status.submitted {
+      background: #DBEAFE;
+      color: #1D4ED8;
+    }
+    .school-status.in-progress {
+      background: var(--target-bg);
+      color: #B45309;
+    }
+    .school-chance {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .school-chance.reach { color: var(--text-main); }
+    .school-chance.target { color: var(--target); }
+    .school-chance.safety { color: var(--safety); }
+    .school-tier {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .school-tier.reach { background: var(--reach-bg); color: var(--reach); }
+    .school-tier.target { background: var(--target-bg); color: var(--target); }
+    .school-tier.safety { background: var(--safety-bg); color: var(--safety); }
+
+    .suggestion-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .suggestion-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 12px;
+    }
+    .suggestion-title i { width: 16px; height: 16px; }
+    .suggestion-card {
+      background: linear-gradient(135deg, var(--accent-surface) 0%, white 100%);
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .suggestion-card .school-logo {
+      background: #B7312C;
+    }
+    .suggestion-reason {
+      flex: 1;
+    }
+    .suggestion-reason strong {
+      display: block;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    .suggestion-reason span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .add-btn {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <div class="browser-bar">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <div class="header-icon">
+          <i data-lucide="school" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div>
+          <h2>Smart School List</h2>
+          <p>A balanced list with schools that fit you</p>
+        </div>
+      </div>
+
+      <div class="balance-bar">
+        <div class="balance-item reach">
+          <div class="balance-dot reach"></div>
+          4 Reach
+        </div>
+        <div class="balance-item target">
+          <div class="balance-dot target"></div>
+          3 Target
+        </div>
+        <div class="balance-item safety">
+          <div class="balance-dot safety"></div>
+          2 Safety
+        </div>
+      </div>
+
+      <!-- School Rows -->
+      <div class="school-row">
+        <div class="school-logo" style="background: #8C1515;">S</div>
+        <div class="school-info">
+          <div class="school-name">Stanford University</div>
+          <div class="school-meta">Due Jan 1 · RD</div>
+        </div>
+        <div class="school-status in-progress">In Progress</div>
+        <div class="school-chance reach">14%</div>
+        <div class="school-tier reach">Reach</div>
+      </div>
+
+      <div class="school-row">
+        <div class="school-logo" style="background: #A51C30;">H</div>
+        <div class="school-info">
+          <div class="school-name">Harvard University</div>
+          <div class="school-meta">Due Jan 1 · RD</div>
+        </div>
+        <div class="school-status in-progress">In Progress</div>
+        <div class="school-chance reach">10%</div>
+        <div class="school-tier reach">Reach</div>
+      </div>
+
+      <div class="school-row">
+        <div class="school-logo" style="background: #2774AE;">UC</div>
+        <div class="school-info">
+          <div class="school-name">UCLA</div>
+          <div class="school-meta">Due Nov 30 · UC</div>
+        </div>
+        <div class="school-status submitted">Submitted</div>
+        <div class="school-chance target">42%</div>
+        <div class="school-tier target">Target</div>
+      </div>
+
+      <div class="school-row">
+        <div class="school-logo" style="background: #182B49;">UC</div>
+        <div class="school-info">
+          <div class="school-name">UC San Diego</div>
+          <div class="school-meta">Due Nov 30 · UC</div>
+        </div>
+        <div class="school-status submitted">Submitted</div>
+        <div class="school-chance safety">72%</div>
+        <div class="school-tier safety">Safety</div>
+      </div>
+
+      <!-- Suggestion -->
+      <div class="suggestion-section">
+        <div class="suggestion-title">
+          <i data-lucide="sparkles"></i>
+          Suggested for You
+        </div>
+        <div class="suggestion-card">
+          <div class="school-logo">GT</div>
+          <div class="suggestion-reason">
+            <strong>Georgia Tech</strong>
+            <span>Strong engineering + good fit for your robotics</span>
+          </div>
+          <div class="school-chance target">45%</div>
+          <div class="add-btn">
+            Add <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

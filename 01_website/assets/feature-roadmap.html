@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Screenshot - Your Roadmap</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --bg-app: #F9F8F6;
+      --bg-sidebar: #F3F1ED;
+      --bg-card: #FFFFFF;
+      --accent-primary: #12756A;
+      --accent-surface: #E8F5F3;
+      --accent-border: #C5E4DF;
+      --text-main: #2D2A26;
+      --text-muted: #6B665E;
+      --text-light: #9E988E;
+      --border-subtle: #E8E5DF;
+      --success: #22C55E;
+      --success-bg: #F0FDF4;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F5F5F5;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .screenshot-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05);
+      overflow: hidden;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .browser-bar {
+      background: #F5F4F2;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .browser-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .browser-dot.red { background: #FF5F57; }
+    .browser-dot.yellow { background: #FFBD2E; }
+    .browser-dot.green { background: #28CA42; }
+
+    .content {
+      padding: 32px;
+      background: var(--bg-app);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .header-icon {
+      width: 48px; height: 48px;
+      background: var(--accent-surface);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .header h2 {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .header p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .goal-card {
+      background: white;
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .goal-card.active {
+      border-color: var(--accent-primary);
+      box-shadow: 0 4px 12px rgba(18, 117, 106, 0.1);
+    }
+
+    .goal-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .goal-emoji {
+      font-size: 24px;
+    }
+    .goal-info {
+      flex: 1;
+    }
+    .goal-title {
+      font-family: 'Satoshi', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .goal-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .goal-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: var(--accent-surface);
+      color: var(--accent-primary);
+    }
+    .goal-badge.planned {
+      background: var(--bg-sidebar);
+      color: var(--text-muted);
+    }
+
+    .goal-tasks {
+      padding: 16px 20px;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .task-item:last-child {
+      border-bottom: none;
+    }
+    .task-checkbox {
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .task-checkbox.done {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: white;
+    }
+    .task-checkbox i { width: 12px; height: 12px; }
+    .task-text {
+      flex: 1;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    .task-text.done {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+    .task-due {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-sidebar);
+      border-radius: 100px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-primary);
+      border-radius: 100px;
+    }
+
+    .suggestion-card {
+      background: linear-gradient(135deg, var(--accent-surface) 0%, white 100%);
+      border: 1px solid var(--accent-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .suggestion-icon {
+      width: 40px; height: 40px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-primary);
+    }
+    .suggestion-text {
+      flex: 1;
+    }
+    .suggestion-text strong {
+      display: block;
+      font-size: 14px;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+    .suggestion-text span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .suggestion-action {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screenshot-container">
+    <div class="browser-bar">
+      <div class="browser-dot red"></div>
+      <div class="browser-dot yellow"></div>
+      <div class="browser-dot green"></div>
+    </div>
+
+    <div class="content">
+      <div class="header">
+        <div class="header-icon">
+          <i data-lucide="compass" style="width: 24px; height: 24px;"></i>
+        </div>
+        <div>
+          <h2>Your Roadmap</h2>
+          <p>Know exactly what to do and when</p>
+        </div>
+      </div>
+
+      <!-- Active Goal -->
+      <div class="goal-card active">
+        <div class="goal-header">
+          <div class="goal-emoji">🔬</div>
+          <div class="goal-info">
+            <div class="goal-title">Apply to SIMR Summer Research</div>
+            <div class="goal-meta">
+              <span>Research</span>
+              <span>·</span>
+              <span>Due Jan 15</span>
+            </div>
+          </div>
+          <div class="goal-badge">Active</div>
+        </div>
+        <div class="goal-tasks">
+          <div class="task-item">
+            <div class="task-checkbox done"><i data-lucide="check"></i></div>
+            <div class="task-text done">Draft Essay 1</div>
+            <div class="task-due">Done</div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox done"><i data-lucide="check"></i></div>
+            <div class="task-text done">Request recommendation letter</div>
+            <div class="task-due">Done</div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-text">Draft Essay 2</div>
+            <div class="task-due">Today</div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-text">Upload transcript</div>
+            <div class="task-due">Jan 10</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 50%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Planned Goal -->
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-emoji">🏆</div>
+          <div class="goal-info">
+            <div class="goal-title">Qualify for USAMO</div>
+            <div class="goal-meta">
+              <span>Competition</span>
+              <span>·</span>
+              <span>Feb 8</span>
+            </div>
+          </div>
+          <div class="goal-badge planned">Planned</div>
+        </div>
+      </div>
+
+      <!-- AI Suggestion -->
+      <div class="suggestion-card">
+        <div class="suggestion-icon">
+          <i data-lucide="sparkles" style="width: 20px; height: 20px;"></i>
+        </div>
+        <div class="suggestion-text">
+          <strong>Suggested: Science Olympiad Regionals</strong>
+          <span>Matches your physics interest and strengthens awards</span>
+        </div>
+        <div class="suggestion-action">
+          Add <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
