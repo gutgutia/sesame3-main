@@ -4,7 +4,9 @@ import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Coffee, FlaskConical, Users, Calculator, Target, Sparkles, TrendingUp, GraduationCap, Calendar, School, ChevronRight, Plus, Check } from "lucide-react";
 import { ZenInput } from "@/components/dashboard/ZenInput";
-import { FocusWidget } from "@/components/dashboard/FocusWidget";
+import { FocusWidgetEnhanced } from "@/components/dashboard/FocusWidgetEnhanced";
+import { QuickActions } from "@/components/dashboard/QuickActions";
+import { ThreePillars } from "@/components/dashboard/ThreePillars";
 import { PillarSnapshot } from "@/components/dashboard/PillarSnapshot";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -482,7 +484,8 @@ function DashboardContent() {
   // ========== ZONE 3: Full Dashboard ==========
   return (
     <>
-      <div className="mb-10">
+      {/* Greeting */}
+      <div className="mb-6">
         <h1 className="font-display font-bold text-3xl md:text-4xl text-text-main mb-2">
           {greeting}, {userName}.
         </h1>
@@ -491,116 +494,26 @@ function DashboardContent() {
         </p>
       </div>
 
-      <ZenInput />
-
-      <FocusWidget />
-
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-10">
-        {/* Left Column */}
-        <div className="flex flex-col gap-8">
-          <PillarSnapshot />
-
-          <div>
-            <div className="flex justify-between items-center mb-5">
-              <h3 className="font-display font-bold text-lg">Active Goals</h3>
-              <Link href="/plan" className="text-[13px] font-medium text-accent-primary hover:underline">View all</Link>
-            </div>
-            
-            <Card className="p-0 overflow-hidden">
-              {profile.goals && profile.goals.length > 0 ? (
-                profile.goals.slice(0, 3).map((goal, i) => (
-                  <GoalRow 
-                    key={goal.id}
-                    icon={goal.category === "research" ? FlaskConical : goal.category === "competition" ? Calculator : goal.category === "leadership" ? Users : Target} 
-                    title={goal.title.slice(0, 30) + (goal.title.length > 30 ? "..." : "")}
-                    meta={goal.category.charAt(0).toUpperCase() + goal.category.slice(1)}
-                    progress={goal.status === "completed" ? 100 : goal.status === "in_progress" ? 50 : 10}
-                    active={i === 0}
-                  />
-                ))
-              ) : (
-                <>
-                  <GoalRow icon={FlaskConical} title="Summer Research" meta="Applications open" progress={40} active />
-                  <GoalRow icon={Users} title="EduAccess Nonprofit" meta="Growth phase" progress={65} />
-                  <GoalRow icon={Calculator} title="AIME Qualification" meta="Study plan created" progress={25} />
-                </>
-              )}
-            </Card>
-          </div>
+      {/* Advisor Chat Input - Always present and inviting */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-4 h-4 text-accent-primary" />
+          <span className="text-sm font-medium text-text-muted">Ask your advisor anything</span>
         </div>
-
-        {/* Right Column */}
-        <div className="flex flex-col gap-8">
-          <div>
-            <h3 className="font-display font-bold text-lg mb-5">Timeline</h3>
-            
-            {/* Advisor Note */}
-            <div className="bg-bg-sidebar rounded-xl p-4 flex gap-3 items-start mb-6">
-              <div className="w-8 h-8 bg-text-main text-white rounded-full flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <div className="text-[13px] text-text-main leading-relaxed">
-                <strong>Tip for this week:</strong> You've got a solid foundation. Focus on deepening one area that excites you most.
-              </div>
-            </div>
-
-            <Card>
-              <div className="flex flex-col gap-5 pl-3 relative">
-                <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-border-subtle" />
-                <TimelineItem status="done" date="Setup" title="Profile complete" />
-                <TimelineItem status="active" date="Now" title="Build momentum" />
-                <TimelineItem date="This month" title="First deadline" />
-                <TimelineItem date="Spring" title="Major applications" />
-              </div>
-            </Card>
-          </div>
-
-          {/* Schools Summary */}
-          {(profile.schools?.length || 0) > 0 && (
-            <div>
-              <h3 className="font-display font-bold text-lg mb-5">Your Schools</h3>
-              <Card className="p-5">
-                <div className="space-y-3">
-                  {profile.schools?.slice(0, 3).map(school => (
-                    <div key={school.id} className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-accent-surface text-accent-primary rounded-lg flex items-center justify-center text-sm font-bold">
-                        {school.name.charAt(0)}
-                      </div>
-                      <span className="font-medium text-sm">{school.name}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link href="/schools" className="text-sm text-accent-primary hover:underline font-medium mt-4 block">
-                  View all {profile.schools?.length} schools →
-                </Link>
-              </Card>
-            </div>
-          )}
-
-          {/* Dream School */}
-          {dreamSchool && !profile.schools?.find(s => s.name.toLowerCase() === dreamSchool.toLowerCase()) && (
-            <div>
-              <h3 className="font-display font-bold text-lg mb-5">Dream School</h3>
-              <Card className="p-5">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 bg-accent-surface text-accent-primary rounded-xl flex items-center justify-center font-bold text-lg">
-                    {dreamSchool.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <div className="font-display font-bold text-lg">{dreamSchool}</div>
-                    <div className="text-sm text-text-muted">Your target</div>
-                  </div>
-                </div>
-                <Link href="/schools" className="text-sm text-accent-primary hover:underline font-medium">
-                  View match analysis →
-                </Link>
-              </Card>
-            </div>
-          )}
-        </div>
+        <ZenInput />
       </div>
 
-      <div className="mt-16 text-center text-text-light text-[13px] flex items-center justify-center gap-2">
+      {/* Quick Actions */}
+      <QuickActions />
+
+      {/* Focus Widget with Timeline */}
+      <FocusWidgetEnhanced profile={profile} />
+
+      {/* Three Pillars: Profile, Goals, Schools */}
+      <ThreePillars profile={profile} />
+
+      {/* Footer */}
+      <div className="mt-8 text-center text-text-light text-[13px] flex items-center justify-center gap-2">
         <Coffee className="w-4 h-4" />
         <span>Remember to take breaks. You've got this.</span>
       </div>
