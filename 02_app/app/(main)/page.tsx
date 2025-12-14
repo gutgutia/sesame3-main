@@ -2,7 +2,7 @@
 
 import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Coffee, FlaskConical, Users, Calculator, Target, Sparkles } from "lucide-react";
+import { Coffee, FlaskConical, Users, Calculator, Target, Sparkles, TrendingUp, MessageCircle } from "lucide-react";
 import { ZenInput } from "@/components/dashboard/ZenInput";
 import { FocusWidget } from "@/components/dashboard/FocusWidget";
 import { PillarSnapshot } from "@/components/dashboard/PillarSnapshot";
@@ -96,25 +96,62 @@ function DashboardContent() {
 
         <ZenInput />
 
-        {/* First Goal Card - Adapts based on what we know */}
+        {/* Primary CTA: Check Chances (if they have a dream school) */}
+        {userData.dreamSchool && (
+          <div className="bg-gradient-to-br from-accent-surface to-white border border-accent-border rounded-[20px] p-8 shadow-float mb-6 relative overflow-hidden">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+              <div className="w-16 h-16 bg-white text-accent-primary rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-accent-border">
+                <TrendingUp className="w-8 h-8" />
+              </div>
+              <div className="flex-1">
+                <h2 className="font-display font-bold text-2xl mb-2 text-text-main">
+                  See your chances at {userData.dreamSchool}
+                </h2>
+                <p className="text-text-muted mb-4 max-w-lg">
+                  Share your GPA and test scores, and I'll show you where you stand. Every detail helps refine your chances.
+                </p>
+                <Link href="/advisor?mode=chances">
+                  <Button>
+                    <TrendingUp className="w-4 h-4" />
+                    Check My Chances
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Secondary CTA: Build Profile */}
         <div className="bg-white border border-border-subtle rounded-[20px] p-8 shadow-float mb-12 relative overflow-hidden">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="w-16 h-16 bg-accent-surface text-accent-primary rounded-2xl flex items-center justify-center shrink-0">
-              <Target className="w-8 h-8" />
+              {userData.dreamSchool ? <MessageCircle className="w-8 h-8" /> : <Target className="w-8 h-8" />}
             </div>
             <div className="flex-1">
               <h2 className="font-display font-bold text-2xl mb-2">
-                {hasBasicInfo ? "First Goal: Profile Snapshot" : "Let's get to know you"}
+                {userData.dreamSchool 
+                  ? "Or, start building your full profile"
+                  : hasBasicInfo 
+                  ? "First Goal: Check Your Chances" 
+                  : "Let's get to know you"
+                }
               </h2>
               <p className="text-text-muted mb-4 max-w-lg">
-                {hasBasicInfo 
+                {userData.dreamSchool 
+                  ? "Tell me about your activities, awards, and goals. The more I know, the better I can help."
+                  : hasBasicInfo 
                   ? "To give you accurate chances, I need a baseline. Let's add your GPA or a recent test score."
                   : "Tell me a bit about yourself so I can personalize your experience."
                 }
               </p>
-              <Link href="/advisor">
-                <Button>
-                  {hasBasicInfo ? "Start Profile" : "Chat with Sesame"}
+              <Link href={userData.dreamSchool ? "/advisor" : "/advisor?mode=chances"}>
+                <Button variant={userData.dreamSchool ? "secondary" : "primary"}>
+                  {userData.dreamSchool 
+                    ? "Chat with Sesame"
+                    : hasBasicInfo 
+                    ? "Check My Chances" 
+                    : "Get Started"
+                  }
                 </Button>
               </Link>
             </div>
