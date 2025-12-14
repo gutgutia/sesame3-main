@@ -9,7 +9,10 @@ export function Footer() {
           Sesame3
         </div>
         
-        <div className="flex gap-8">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+          <a href="/about" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+            About
+          </a>
           <a href="/privacy" className="text-sm text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
             Privacy
           </a>

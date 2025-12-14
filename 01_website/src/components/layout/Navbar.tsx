@@ -14,14 +14,17 @@ export function Navbar() {
         </a>
         
         <div className="hidden md:flex items-center gap-8">
-          <a href="#how" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+          <a href="/#how" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
             How It Works
           </a>
-          <a href="#features" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+          <a href="/#features" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
             Features
           </a>
-          <a href="#pricing" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+          <a href="/#pricing" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
             Pricing
+          </a>
+          <a href="/about" className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors">
+            About
           </a>
         </div>
 
