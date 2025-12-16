@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { generateText } from "ai";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelFor } from "@/lib/ai";
 import { assembleContext } from "@/lib/ai/context/assembler";
 import { getCurrentProfileId } from "@/lib/auth";
 import { EntryMode } from "@/lib/ai/context/entry-context";
@@ -63,11 +63,17 @@ Guidelines:
 - Don't use bullet points or lists - this is conversational
 - Don't say "I'm here to help" or similar clichés`;
 
+    const startTime = Date.now();
+    
     const { text } = await generateText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: modelFor.fastParsing, // Kimi K2 via Groq - much faster
       system: systemPrompt,
       prompt: "Generate the opening message for this conversation.",
+      temperature: 0.7, // Slightly higher for more natural greetings
+      maxTokens: 200,
     });
+    
+    console.log(`[Welcome] Generated in ${Date.now() - startTime}ms`);
     
     return NextResponse.json({ message: text.trim() });
     

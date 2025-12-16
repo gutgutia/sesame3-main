@@ -13,7 +13,7 @@ type Message = {
   content: string;
 };
 
-// Widget from a tool call
+// Widget from Parser
 type PendingWidget = {
   id: string;
   type: WidgetType;
@@ -39,7 +39,7 @@ export function ChatInterface({
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(true); // Start loading for welcome
+  const [isLoading, setIsLoading] = useState(true);
   const [pendingWidgets, setPendingWidgets] = useState<PendingWidget[]>([]);
   
   // Fetch AI-generated welcome message
@@ -63,7 +63,6 @@ export function ChatInterface({
             content: message,
           }]);
         } else {
-          // Fallback
           setMessages([{
             id: "welcome",
             role: "assistant",
@@ -84,9 +83,8 @@ export function ChatInterface({
     fetchWelcome();
   }, [mode]);
   
-  // Send message to API
-  // skipWidgetDetection: when true, don't trigger widget detection (for confirmation follow-ups)
-  const sendMessage = useCallback(async (content: string, skipWidgetDetection = false) => {
+  // Send message to API with Parser + Advisor dual-model architecture
+  const sendMessage = useCallback(async (content: string) => {
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       role: "user",
@@ -105,7 +103,7 @@ export function ChatInterface({
             role: m.role,
             content: m.content,
           })),
-          mode, // Pass the entry mode for context assembly
+          mode,
         }),
       });
       
@@ -113,7 +111,6 @@ export function ChatInterface({
         throw new Error("Failed to send message");
       }
       
-      // Read the streaming response
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error("No response body");
@@ -121,6 +118,7 @@ export function ChatInterface({
       
       const decoder = new TextDecoder();
       let fullText = "";
+      let buffer = "";
       
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
@@ -130,44 +128,52 @@ export function ChatInterface({
       
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Read the stream
+      // Read the stream - handle both SSE events and plain text
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         
         const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
         
-        // Try to parse as data stream format (0:"text") or plain text
-        if (chunk.includes("0:")) {
-          // Data stream format
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("0:")) {
-              try {
-                const text = JSON.parse(line.slice(2));
-                fullText += text;
-              } catch {
-                // Not valid JSON, use as-is
-                fullText += line.slice(2);
+        // Check for SSE widget event at start of stream
+        if (buffer.includes("event: widget")) {
+          const eventMatch = buffer.match(/event: widget\ndata: (.+?)(\n\n|$)/);
+          if (eventMatch) {
+            try {
+              const eventData = JSON.parse(eventMatch[1]);
+              if (eventData.type === "widget" && eventData.widget) {
+                const widget: PendingWidget = {
+                  id: `widget-${Date.now()}`,
+                  type: eventData.widget.type as WidgetType,
+                  data: eventData.widget.data,
+                  status: "pending",
+                };
+                setPendingWidgets(prev => [...prev, widget]);
+                console.log("[Chat] Widget from Parser:", widget.type);
               }
+            } catch (e) {
+              console.error("[Chat] Failed to parse widget event:", e);
             }
+            // Remove the SSE event from buffer, keep the rest as text
+            buffer = buffer.replace(/event: widget\ndata: .+?(\n\n|$)/, "");
           }
-        } else {
-          // Plain text
-          fullText += chunk;
         }
         
-        // Update the assistant message
-        setMessages(prev => 
-          prev.map(m => 
-            m.id === assistantMessage.id 
-              ? { ...m, content: fullText }
-              : m
-          )
-        );
+        // Everything else is text content
+        if (buffer) {
+          fullText = buffer;
+          setMessages(prev => 
+            prev.map(m => 
+              m.id === assistantMessage.id 
+                ? { ...m, content: fullText }
+                : m
+            )
+          );
+        }
       }
       
-      // If response is empty, show a fallback message
+      // Fallback for empty response
       if (!fullText.trim()) {
         console.warn("Empty AI response received");
         setMessages(prev => 
@@ -177,13 +183,6 @@ export function ChatInterface({
               : m
           )
         );
-        fullText = "I got that! What else would you like to share?";
-      }
-      
-      // After streaming is complete, check for tool calls in the response
-      // Skip if this was a confirmation follow-up message
-      if (!skipWidgetDetection) {
-        detectAndShowWidgets(content, fullText);
       }
       
     } catch (error) {
@@ -200,158 +199,6 @@ export function ChatInterface({
       setIsLoading(false);
     }
   }, [messages, mode]);
-  
-  // Simple pattern detection for widgets (temporary until tool calls work properly)
-  const detectAndShowWidgets = (userInput: string, assistantResponse: string) => {
-    const input = userInput.toLowerCase();
-    const newWidgets: PendingWidget[] = [];
-    
-    // Detect GPA - more flexible patterns
-    // Matches: "3.9 gpa", "gpa is 3.9", "my gpa is 3.9", "I have a 3.9 gpa", "3.9 unweighted"
-    const gpaPatterns = [
-      /(\d+\.?\d*)\s*(?:gpa|grade point|unweighted|weighted)/i,
-      /gpa\s*(?:of|is|:|was)?\s*(\d+\.?\d*)/i,
-      /(?:have|got|has)\s+(?:a\s+)?(\d+\.?\d*)\s*(?:gpa)?/i,
-    ];
-    
-    let gpaValue: number | null = null;
-    for (const pattern of gpaPatterns) {
-      const match = userInput.match(pattern);
-      if (match) {
-        const val = parseFloat(match[1] || match[2]);
-        if (val >= 1.0 && val <= 5.0) {
-          gpaValue = val;
-          break;
-        }
-      }
-    }
-    
-    if (gpaValue !== null) {
-      const isWeighted = input.includes("weighted") && !input.includes("unweighted");
-      newWidgets.push({
-        id: `widget-gpa-${Date.now()}`,
-        type: "gpa",
-        data: {
-          gpaUnweighted: !isWeighted ? gpaValue : undefined,
-          gpaWeighted: isWeighted ? gpaValue : undefined,
-        },
-        status: "pending",
-      });
-    }
-    
-    // Detect SAT - more flexible patterns
-    // Matches: "1490 sat", "sat 1490", "got a 1490", "scored 1490 on sat"
-    const satPatterns = [
-      /(\d{3,4})\s*(?:sat|on the sat|on my sat)/i,
-      /sat\s*(?:score|is|of|:|was)?\s*(\d{3,4})/i,
-      /(?:got|scored|have|received)\s+(?:a\s+)?(\d{3,4})\s*(?:on|sat)?/i,
-    ];
-    
-    let satScore: number | null = null;
-    if (!gpaValue) { // Only check if not a GPA (to avoid confusing numbers)
-      for (const pattern of satPatterns) {
-        const match = userInput.match(pattern);
-        if (match) {
-          const score = parseInt(match[1] || match[2]);
-          if (score >= 400 && score <= 1600) {
-            satScore = score;
-            break;
-          }
-        }
-      }
-    }
-    
-    // Also check for 4-digit numbers when "sat" is mentioned
-    if (!satScore && input.includes("sat")) {
-      const numberMatch = userInput.match(/\b(\d{3,4})\b/);
-      if (numberMatch) {
-        const score = parseInt(numberMatch[1]);
-        if (score >= 400 && score <= 1600) {
-          satScore = score;
-        }
-      }
-    }
-    
-    if (satScore !== null) {
-      newWidgets.push({
-        id: `widget-sat-${Date.now()}`,
-        type: "sat",
-        data: { satTotal: satScore },
-        status: "pending",
-      });
-    }
-    
-    // Detect ACT
-    const actPatterns = [
-      /(\d{1,2})\s*(?:act|on the act|on my act)/i,
-      /act\s*(?:score|is|of|:|was)?\s*(\d{1,2})/i,
-    ];
-    
-    let actScore: number | null = null;
-    if (!gpaValue && !satScore && input.includes("act")) {
-      for (const pattern of actPatterns) {
-        const match = userInput.match(pattern);
-        if (match) {
-          const score = parseInt(match[1] || match[2]);
-          if (score >= 1 && score <= 36) {
-            actScore = score;
-            break;
-          }
-        }
-      }
-    }
-    
-    if (actScore !== null) {
-      newWidgets.push({
-        id: `widget-act-${Date.now()}`,
-        type: "act",
-        data: { actComposite: actScore },
-        status: "pending",
-      });
-    }
-    
-    // Detect Activity
-    const leadershipKeywords = ["president", "captain", "founder", "leader", "head", "director", "vp", "vice president", "co-founder"];
-    const activityKeywords = ["club", "team", "volunteer", "member", "involved", "participate", "join", "play", "sport", "robotics", "debate", "orchestra", "band", "theater", "theatre"];
-    const hasLeadership = leadershipKeywords.some(k => input.includes(k));
-    const hasActivity = activityKeywords.some(k => input.includes(k)) || hasLeadership;
-    
-    if (hasActivity && !gpaValue && !satScore && !actScore) {
-      newWidgets.push({
-        id: `widget-activity-${Date.now()}`,
-        type: "activity",
-        data: {
-          title: hasLeadership ? "Leadership Role" : "Member",
-          organization: extractOrganization(userInput),
-          isLeadership: hasLeadership,
-        },
-        status: "pending",
-      });
-    }
-    
-    // Detect Awards
-    const awardKeywords = ["won", "winner", "award", "finalist", "semifinalist", "qualifier", "aime", "usamo", "usaco", "olympiad", "medal", "honor", "recognition", "national merit"];
-    const hasAward = awardKeywords.some(k => input.includes(k));
-    
-    if (hasAward && !hasActivity && !gpaValue && !satScore) {
-      const isNational = input.includes("national") || input.includes("aime") || input.includes("usamo") || input.includes("usaco");
-      newWidgets.push({
-        id: `widget-award-${Date.now()}`,
-        type: "award",
-        data: {
-          title: extractAwardTitle(userInput),
-          level: isNational ? "national" : "regional",
-        },
-        status: "pending",
-      });
-    }
-    
-    console.log("Widget detection - input:", userInput, "widgets:", newWidgets);
-    
-    if (newWidgets.length > 0) {
-      setPendingWidgets(prev => [...prev, ...newWidgets]);
-    }
-  };
   
   // Auto-scroll to bottom
   useEffect(() => {
@@ -395,8 +242,6 @@ export function ChatInterface({
           prev.map(w => w.id === widgetId ? { ...w, status: "confirmed" as const } : w)
         );
         onProfileUpdate?.();
-        // No auto-message - the AI already acknowledged in its response
-        // User can continue the conversation naturally
       } else {
         console.error("Failed to save:", await response.text());
       }
@@ -572,36 +417,4 @@ function getApiEndpoint(widgetType: WidgetType): string {
 function getApiMethod(widgetType: WidgetType): string {
   const postTypes: WidgetType[] = ["activity", "award", "course", "program", "goal", "school"];
   return postTypes.includes(widgetType) ? "POST" : "PUT";
-}
-
-function extractOrganization(text: string): string {
-  // Simple extraction - in production, the AI would do this
-  const patterns = [
-    /(?:of|at|for|in)\s+(?:the\s+)?([A-Z][a-zA-Z\s]+(?:Club|Team|Society|Organization|Group))/i,
-    /([A-Z][a-zA-Z\s]+(?:Club|Team|Society))/i,
-  ];
-  
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) return match[1].trim();
-  }
-  
-  return "Organization";
-}
-
-function extractAwardTitle(text: string): string {
-  // Simple extraction
-  const patterns = [
-    /(AIME\s*Qualifier)/i,
-    /(National Merit\s*(?:Semifinalist|Finalist)?)/i,
-    /(USAMO\s*Qualifier)/i,
-    /(?:won|received|got)\s+(?:the\s+)?([^,\.]+(?:award|prize|medal))/i,
-  ];
-  
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) return match[1].trim();
-  }
-  
-  return "Award";
 }

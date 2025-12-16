@@ -7,7 +7,18 @@ export { models, modelFor, getAvailableProviders, getModelWithFallback } from ".
 export { allTools, profileTools, planningTools } from "./tools";
 export { executeToolCall } from "./tool-handlers";
 
-// Context assembly (NEW)
+// Parser (NEW - Kimi K2)
+export {
+  parseUserMessage,
+  shouldParse,
+  formatParserContextForAdvisor,
+  type ParserResponse,
+  type ParserContext,
+  type ExtractedEntity,
+  type WidgetType,
+} from "./parser";
+
+// Context assembly
 export { 
   assembleContext, 
   assembleContextSimple,
@@ -22,7 +33,7 @@ export {
   type Message,
 } from "./context";
 
-// Prompts (NEW structure)
+// Prompts
 export {
   ADVISOR_BASE_PERSONA,
   ADVISOR_PROMPT_TEMPLATE,
