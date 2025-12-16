@@ -2,75 +2,40 @@ import { streamText } from "ai";
 import { NextRequest } from "next/server";
 import { requireProfile } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { modelFor, allTools, ADVISOR_SYSTEM_PROMPT, buildProfileContext } from "@/lib/ai";
+import { modelFor, allTools, assembleContext, type EntryMode } from "@/lib/ai";
 
 export const maxDuration = 60; // Allow up to 60 seconds for streaming
 
 /**
  * POST /api/chat
- * Main chat endpoint - streams AI responses with tool calling
+ * Main chat endpoint - streams AI responses with full context assembly
  */
 export async function POST(request: NextRequest) {
   try {
     const profileId = await requireProfile();
-    const { messages, conversationId } = await request.json();
+    const { messages, conversationId, mode = "general" } = await request.json();
     
-    // Load profile context for the AI
-    const profile = await prisma.studentProfile.findUnique({
-      where: { id: profileId },
-      include: {
-        academics: true,
-        testing: true,
-        activities: {
-          orderBy: { displayOrder: "asc" },
-          take: 10,
-        },
-        awards: {
-          orderBy: { displayOrder: "asc" },
-          take: 5,
-        },
-        courses: {
-          where: { status: "in_progress" },
-          take: 10,
-        },
-        schoolList: {
-          include: { school: true },
-          orderBy: { displayOrder: "asc" },
-          take: 10,
-        },
-      },
+    // Assemble full context for the AI
+    const context = await assembleContext({
+      profileId,
+      mode: mode as EntryMode,
+      messages: messages.map((m: { role: string; content: string }) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+      sessionStartTime: new Date(),
     });
     
-    if (!profile) {
-      return new Response("Profile not found", { status: 404 });
-    }
+    // Log context assembly for debugging (remove in production)
+    console.log("=== Context Assembly ===");
+    console.log("Profile Narrative:", context.components.profileNarrative.slice(0, 200) + "...");
+    console.log("Entry Context:", context.components.entryContext.slice(0, 100));
+    console.log("========================");
     
-    // Build profile context string
-    const profileContext = buildProfileContext({
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      grade: profile.grade,
-      highSchoolName: profile.highSchoolName,
-      academics: profile.academics,
-      testing: profile.testing,
-      activities: profile.activities,
-      awards: profile.awards,
-      courses: profile.courses,
-      schoolList: profile.schoolList,
-    });
-    
-    // Build system message with context
-    const systemMessage = `${ADVISOR_SYSTEM_PROMPT}
-
-## Current Student Profile
-${profileContext}
-
-Remember: You have access to tools to save profile data. Use them when the student shares new information.`;
-    
-    // Stream the response
+    // Stream the response using the assembled advisor prompt
     const result = streamText({
       model: modelFor.advisor,
-      system: systemMessage,
+      system: context.advisorPrompt,
       messages,
       tools: allTools,
       onFinish: async ({ text, toolCalls, toolResults }) => {
@@ -90,7 +55,7 @@ Remember: You have access to tools to save profile data. Use them when the stude
               data: {
                 studentProfileId: profileId,
                 title: messages[0]?.content?.slice(0, 50) || "New conversation",
-                mode: "general",
+                mode: mode || "general",
               },
             });
           }
@@ -115,7 +80,7 @@ Remember: You have access to tools to save profile data. Use them when the stude
               content: text,
               toolCalls: toolCalls ? JSON.parse(JSON.stringify(toolCalls)) : undefined,
               toolResults: toolResults ? JSON.parse(JSON.stringify(toolResults)) : undefined,
-              model: "claude-sonnet-4-5", // Updated dynamically based on modelFor.advisor
+              model: "claude-sonnet-4-5",
               provider: "anthropic",
             },
           });

@@ -69,3 +69,6 @@ The first 5 minutes are critical for reducing anxiety.
 *   **Frictionless Entry:** Google / Email+Code (No passwords).
 *   **Conversational Setup:** We don't drop them into an empty dashboard. A brief chat (Grade, Feeling, Goal) sets the emotional tone.
 *   **Personalized Landing:** The "Day 1" dashboard is pre-populated based on that chat, giving them an immediate sense of "I am in the right place, and this is manageable."
+
+
+

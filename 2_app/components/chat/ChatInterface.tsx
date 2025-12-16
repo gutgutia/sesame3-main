@@ -67,6 +67,7 @@ export function ChatInterface({
             role: m.role,
             content: m.content,
           })),
+          mode, // Pass the entry mode for context assembly
         }),
       });
       
