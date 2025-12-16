@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { DevSwitcher } from "@/components/dev/DevSwitcher";
+import { ProfileProvider } from "@/lib/context/ProfileContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,8 +34,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        {children}
-        <DevSwitcher />
+        <ProfileProvider>
+          {children}
+          <DevSwitcher />
+        </ProfileProvider>
       </body>
     </html>
   );

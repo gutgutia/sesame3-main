@@ -25,63 +25,41 @@ interface ChatInterfaceProps {
   initialMessage?: string;
   mode?: "general" | "onboarding" | "chances" | "schools" | "planning" | "profile" | "story";
   onProfileUpdate?: () => void;
+  preloadedWelcome?: string | null; // Pre-fetched welcome message from parent
 }
 
 export function ChatInterface({ 
   initialMessage, 
   mode = "general",
-  onProfileUpdate 
+  onProfileUpdate,
+  preloadedWelcome,
 }: ChatInterfaceProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasInitialized = useRef(false);
-  const welcomeFetched = useRef(false);
+  const welcomeSet = useRef(false);
   
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!preloadedWelcome); // Not loading if we have preloaded
   const [pendingWidgets, setPendingWidgets] = useState<PendingWidget[]>([]);
   
-  // Fetch AI-generated welcome message
+  // Use preloaded welcome message if available, otherwise show loading
   useEffect(() => {
-    if (welcomeFetched.current) return;
-    welcomeFetched.current = true;
+    if (welcomeSet.current) return;
     
-    async function fetchWelcome() {
-      try {
-        const res = await fetch("/api/chat/welcome", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ mode }),
-        });
-        
-        if (res.ok) {
-          const { message } = await res.json();
-          setMessages([{
-            id: "welcome",
-            role: "assistant",
-            content: message,
-          }]);
-        } else {
-          setMessages([{
-            id: "welcome",
-            role: "assistant",
-            content: "Hi! I'm Sesame, your college prep advisor. What's on your mind today?",
-          }]);
-        }
-      } catch {
-        setMessages([{
-          id: "welcome",
-          role: "assistant",
-          content: "Hi! I'm Sesame, your college prep advisor. What's on your mind today?",
-        }]);
-      } finally {
-        setIsLoading(false);
-      }
+    if (preloadedWelcome) {
+      // Use the pre-fetched welcome message immediately
+      welcomeSet.current = true;
+      setMessages([{
+        id: "welcome",
+        role: "assistant",
+        content: preloadedWelcome,
+      }]);
+      setIsLoading(false);
+      console.log("[Chat] Using pre-loaded welcome message");
     }
-    
-    fetchWelcome();
-  }, [mode]);
+  }, [preloadedWelcome]);
   
   // Send message to API with Parser + Advisor dual-model architecture
   const sendMessage = useCallback(async (content: string) => {

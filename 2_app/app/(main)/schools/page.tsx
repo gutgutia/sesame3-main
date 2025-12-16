@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { 
   Plus, 
@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/lib/context/ProfileContext";
 
 // =============================================================================
 // TYPES
@@ -25,7 +26,7 @@ interface StudentSchool {
   school: {
     id: string;
     name: string;
-  };
+  } | null;
 }
 
 // =============================================================================
@@ -33,32 +34,19 @@ interface StudentSchool {
 // =============================================================================
 
 export default function SchoolsPage() {
-  const [schools, setSchools] = useState<StudentSchool[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Fetch schools
-  useEffect(() => {
-    async function fetchSchools() {
-      try {
-        const res = await fetch("/api/profile/schools");
-        if (res.ok) {
-          const data = await res.json();
-          setSchools(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch schools:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchSchools();
-  }, []);
-
-  const refreshSchools = async () => {
-    const res = await fetch("/api/profile/schools");
-    if (res.ok) {
-      setSchools(await res.json());
-    }
+  // Use global profile context
+  const { profile, isLoading, refreshProfile } = useProfile();
+  
+  // Extract schools from profile, with type assertion for compatibility
+  const schools: StudentSchool[] = (profile?.schoolList || []).map(s => ({
+    id: s.id,
+    tier: s.tier || null,
+    status: s.status || null,
+    school: s.school || null,
+  }));
+  
+  const refreshSchools = () => {
+    refreshProfile();
   };
 
   const handleDelete = async (id: string) => {

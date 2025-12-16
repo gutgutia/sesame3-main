@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Coffee,
   Target,
@@ -19,26 +19,13 @@ import { ZenInput } from "@/components/dashboard/ZenInput";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { useProfile, ProfileData } from "@/lib/context/ProfileContext";
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
-interface ProfileData {
-  id: string;
-  firstName: string | null;
-  preferredName: string | null;
-  grade: string | null;
-  graduationYear: number | null;
-  highSchoolName: string | null;
-  aboutMe: { story: string | null } | null;
-  academics: { gpaUnweighted: number | null; gpaWeighted: number | null } | null;
-  testing: { satTotal: number | null; actComposite: number | null } | null;
-  activities: Array<{ id: string; title: string; organization: string | null; isLeadership: boolean }>;
-  awards: Array<{ id: string; title: string; level: string | null }>;
-  goals: Array<{ id: string; title: string; status: string }>;
-  schoolList: Array<{ id: string; tier: string | null; school: { name: string } }>;
-}
+// ProfileData is now imported from ProfileContext
 
 type DashboardZone = 0 | 1 | 2 | 3;
 
@@ -104,26 +91,8 @@ function getEncouragingMessage(zone: DashboardZone): string {
 // =============================================================================
 
 export default function DashboardPage() {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch profile data
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile");
-        if (!res.ok) throw new Error("Failed to load profile");
-        const data = await res.json();
-        setProfile(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchProfile();
-  }, []);
+  // Use global profile context instead of fetching per-page
+  const { profile, isLoading, error } = useProfile();
 
   // Loading state
   if (isLoading) {

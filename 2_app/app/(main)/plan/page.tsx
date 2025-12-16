@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus, MessageCircle, Archive, Sparkles, ChevronDown, ChevronUp, Check, Target, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/lib/context/ProfileContext";
 
 // =============================================================================
 // TYPES
@@ -32,33 +33,30 @@ interface Goal {
 // =============================================================================
 
 export default function PlanPage() {
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
-
-  // Fetch goals
-  useEffect(() => {
-    async function fetchGoals() {
-      try {
-        const res = await fetch("/api/profile/goals");
-        if (res.ok) {
-          const data = await res.json();
-          setGoals(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch goals:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchGoals();
-  }, []);
-
-  const refreshGoals = async () => {
-    const res = await fetch("/api/profile/goals");
-    if (res.ok) {
-      setGoals(await res.json());
-    }
+  
+  // Use global profile context
+  const { profile, isLoading, refreshProfile } = useProfile();
+  
+  // Extract goals from profile
+  const goals: Goal[] = (profile?.goals || []).map(g => ({
+    id: g.id,
+    title: g.title,
+    category: g.category || "general",
+    status: g.status || "planning",
+    priority: null,
+    targetDate: null,
+    description: null,
+    tasks: (g.tasks || []).map(t => ({
+      id: t.id,
+      title: t.title,
+      completed: t.completed,
+      dueDate: null,
+    })),
+  }));
+  
+  const refreshGoals = () => {
+    refreshProfile();
   };
 
   // Group goals by status

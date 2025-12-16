@@ -1,46 +1,58 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { ChancesPanel } from "@/components/chat/ChancesPanel";
-import { StudentProfile } from "@/lib/profile";
-import { useState, useEffect } from "react";
+import { useProfile } from "@/lib/context/ProfileContext";
 
 function AdvisorContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q");
   const mode = searchParams.get("mode") as "general" | "onboarding" | "chances" | "schools" | "planning" | "profile" | "story" || "general";
   
-  const [profile, setProfile] = useState<StudentProfile>({});
-  const [targetSchool, setTargetSchool] = useState<string | undefined>();
-  const [refreshKey, setRefreshKey] = useState(0);
+  // Use global profile context (already loaded on app init)
+  const { profile, refreshProfile } = useProfile();
   
-  // Fetch profile from API
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch("/api/profile");
-      if (response.ok) {
-        const data = await response.json();
-        setProfile(data);
-        // If there's a dream school in the list, set it as target
-        const dreamSchool = data.schoolList?.find((s: { tier: string }) => s.tier === "dream");
-        if (dreamSchool) {
-          setTargetSchool(dreamSchool.school?.name);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-    }
-  };
+  // Pre-fetch welcome message on page load
+  const [welcomeMessage, setWelcomeMessage] = useState<string | null>(null);
+  const welcomeFetched = useRef(false);
   
   useEffect(() => {
-    fetchProfile();
-  }, [refreshKey]);
+    if (welcomeFetched.current) return;
+    welcomeFetched.current = true;
+    
+    // Start fetching welcome message immediately on page load
+    const fetchWelcome = async () => {
+      const startTime = Date.now();
+      try {
+        const res = await fetch("/api/chat/welcome", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        });
+        
+        if (res.ok) {
+          const { message } = await res.json();
+          setWelcomeMessage(message);
+          console.log(`[Advisor] Welcome pre-fetched in ${Date.now() - startTime}ms`);
+        }
+      } catch (error) {
+        console.error("[Advisor] Failed to pre-fetch welcome:", error);
+      }
+    };
+    
+    fetchWelcome();
+  }, [mode]);
+  
+  // Find target school for chances panel
+  const targetSchool = profile?.schoolList?.find(
+    (s) => s.tier === "dream"
+  )?.school?.name;
   
   const handleProfileUpdate = () => {
-    // Refresh the profile when data is saved
-    setRefreshKey(k => k + 1);
+    // Refresh the global profile context when data is saved
+    refreshProfile();
   };
 
   return (
@@ -51,12 +63,13 @@ function AdvisorContent() {
           mode={mode}
           initialMessage={initialQuery || undefined}
           onProfileUpdate={handleProfileUpdate}
+          preloadedWelcome={welcomeMessage}
         />
       </div>
 
       {/* Right: Profile & Chances Panel */}
       <div className="hidden md:flex w-[380px] bg-[#FAFAF9] flex-col border-l border-border-subtle p-6 overflow-y-auto">
-        <ChancesPanel profile={profile} targetSchool={targetSchool} />
+        <ChancesPanel profile={profile || {}} targetSchool={targetSchool} />
       </div>
     </div>
   );

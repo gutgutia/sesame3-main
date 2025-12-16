@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { 
   GraduationCap, 
@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/lib/context/ProfileContext";
 
 // =============================================================================
 // TYPES (matching Prisma schema)
@@ -86,33 +87,8 @@ interface ProfileData {
 // =============================================================================
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Fetch profile data
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await fetch("/api/profile");
-        if (!res.ok) throw new Error("Failed to load profile");
-        const data = await res.json();
-        setProfile(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchProfile();
-  }, []);
-
-  const refreshProfile = async () => {
-    const res = await fetch("/api/profile");
-    if (res.ok) {
-      setProfile(await res.json());
-    }
-  };
+  // Use global profile context instead of fetching per-page
+  const { profile, isLoading, error, refreshProfile } = useProfile();
 
   if (isLoading) {
     return (
