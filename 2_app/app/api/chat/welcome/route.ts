@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { assembleContext } from "@/lib/ai/context/assembler";
+import { getCurrentProfileId } from "@/lib/auth";
+import { EntryMode } from "@/lib/ai/context/entry-context";
 
 // Mode descriptions for the AI
 const MODE_CONTEXT: Record<string, string> = {
@@ -23,8 +25,22 @@ export async function POST(request: NextRequest) {
   try {
     const { mode = "general" } = await request.json();
     
+    // Get current user's profile
+    const profileId = await getCurrentProfileId();
+    if (!profileId) {
+      return NextResponse.json({
+        message: "Hi! I'm Sesame, your college prep advisor. What's on your mind today?",
+      });
+    }
+    
     // Assemble context for this user
-    const context = await assembleContext(mode);
+    const context = await assembleContext({
+      profileId,
+      mode: mode as EntryMode,
+      messages: [],
+      sessionStartTime: new Date(),
+      isNewUser: mode === "onboarding",
+    });
     
     // Generate personalized welcome
     const systemPrompt = `You are Sesame, a warm and knowledgeable college admissions advisor.
@@ -35,7 +51,7 @@ ${MODE_CONTEXT[mode] || MODE_CONTEXT.general}
 
 ${context.profileNarrative ? `Student Profile Summary:\n${context.profileNarrative}` : "This is a new student with no profile data yet."}
 
-${context.counselorObjectives ? `Your objectives for this conversation:\n${context.counselorObjectives}` : ""}
+${context.components.counselorObjectives ? `Your objectives for this conversation:\n${context.components.counselorObjectives}` : ""}
 
 Guidelines:
 - Be warm, casual, and encouraging (not overly formal)

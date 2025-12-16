@@ -60,11 +60,17 @@ export function buildEntryContext(params: EntryContextParams): string {
 function getModeContext(mode: EntryMode): string {
   switch (mode) {
     case "onboarding":
-      return `User is in ONBOARDING flow. Focus on:
-- Welcoming them warmly
-- Gathering basic info (name, grade)
-- Understanding their goals
-- Not overwhelming with too many questions`;
+      return `User is in ONBOARDING flow. This is their first time using Sesame.
+
+Your goal: Get to know them through a natural conversation. Gather:
+1. Their name (if not known yet)
+2. What grade they're in
+3. What's on their mind about college
+4. Any dream schools or goals
+
+IMPORTANT: ALWAYS end your response with a follow-up question to keep the conversation moving.
+Don't just acknowledge what they said - engage and ask the next natural question.
+Keep it conversational, not like a form to fill out.`;
     
     case "chances":
       return `User came from CHANCES mode. They want to know their odds at specific schools.

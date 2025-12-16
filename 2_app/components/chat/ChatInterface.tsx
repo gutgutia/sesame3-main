@@ -114,6 +114,10 @@ export function ChatInterface({
       
       // Read the streaming response
       const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error("No response body");
+      }
+      
       const decoder = new TextDecoder();
       let fullText = "";
       
@@ -125,14 +129,38 @@ export function ChatInterface({
       
       setMessages(prev => [...prev, assistantMessage]);
       
-      while (reader) {
+      // Read the stream
+      while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log("Stream done");
+          break;
+        }
         
-        const chunk = decoder.decode(value);
-        fullText += chunk;
+        const chunk = decoder.decode(value, { stream: true });
+        console.log("Raw chunk received:", JSON.stringify(chunk.slice(0, 200)));
         
-        // Update the assistant message with streaming content
+        // Try to parse as data stream format (0:"text") or plain text
+        if (chunk.includes("0:")) {
+          // Data stream format
+          const lines = chunk.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("0:")) {
+              try {
+                const text = JSON.parse(line.slice(2));
+                fullText += text;
+              } catch {
+                // Not valid JSON, use as-is
+                fullText += line.slice(2);
+              }
+            }
+          }
+        } else {
+          // Plain text
+          fullText += chunk;
+        }
+        
+        // Update the assistant message
         setMessages(prev => 
           prev.map(m => 
             m.id === assistantMessage.id 
@@ -141,6 +169,8 @@ export function ChatInterface({
           )
         );
       }
+      
+      console.log("Stream complete. Full text:", fullText.slice(0, 100));
       
       // After streaming is complete, check for tool calls in the response
       // For now, we'll detect patterns in the text and show widgets

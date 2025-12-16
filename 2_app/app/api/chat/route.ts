@@ -32,11 +32,20 @@ export async function POST(request: NextRequest) {
     console.log("Entry Context:", context.components.entryContext.slice(0, 100));
     console.log("========================");
     
+    // Filter out any messages with empty content (can happen with streaming UI)
+    const validMessages = messages.filter(
+      (m: { role: string; content: string }) => m.content && m.content.trim() !== ""
+    );
+    
+    if (validMessages.length === 0) {
+      return new Response("No valid messages", { status: 400 });
+    }
+    
     // Stream the response using the assembled advisor prompt
     const result = streamText({
       model: modelFor.advisor,
       system: context.advisorPrompt,
-      messages,
+      messages: validMessages,
       tools: allTools,
       onFinish: async ({ text, toolCalls, toolResults }) => {
         // Save the conversation to the database
