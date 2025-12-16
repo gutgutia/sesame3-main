@@ -23,7 +23,7 @@ type PendingWidget = {
 
 interface ChatInterfaceProps {
   initialMessage?: string;
-  mode?: "general" | "chances" | "schools" | "planning" | "profile" | "story";
+  mode?: "general" | "onboarding" | "chances" | "schools" | "planning" | "profile" | "story";
   onProfileUpdate?: () => void;
 }
 
@@ -35,17 +35,54 @@ export function ChatInterface({
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const hasInitialized = useRef(false);
+  const welcomeFetched = useRef(false);
   
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content: getWelcomeMessage(mode),
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start loading for welcome
   const [pendingWidgets, setPendingWidgets] = useState<PendingWidget[]>([]);
+  
+  // Fetch AI-generated welcome message
+  useEffect(() => {
+    if (welcomeFetched.current) return;
+    welcomeFetched.current = true;
+    
+    async function fetchWelcome() {
+      try {
+        const res = await fetch("/api/chat/welcome", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        });
+        
+        if (res.ok) {
+          const { message } = await res.json();
+          setMessages([{
+            id: "welcome",
+            role: "assistant",
+            content: message,
+          }]);
+        } else {
+          // Fallback
+          setMessages([{
+            id: "welcome",
+            role: "assistant",
+            content: "Hi! I'm Sesame, your college prep advisor. What's on your mind today?",
+          }]);
+        }
+      } catch {
+        setMessages([{
+          id: "welcome",
+          role: "assistant",
+          content: "Hi! I'm Sesame, your college prep advisor. What's on your mind today?",
+        }]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchWelcome();
+  }, [mode]);
   
   // Send message to API
   const sendMessage = useCallback(async (content: string) => {
@@ -473,23 +510,6 @@ function QuickSuggestion({ onClick, label }: { onClick: () => void; label: strin
 }
 
 // Helper functions
-
-function getWelcomeMessage(mode: string): string {
-  switch (mode) {
-    case "chances":
-      return "Hi! Let's see where you stand. Tell me about yourself — your GPA, test scores, activities — and which school you're curious about.";
-    case "schools":
-      return "Hi! Let's build your school list. Which schools are you interested in? I can also suggest some that might be a good fit.";
-    case "planning":
-      return "Hi! Let's set some goals for your college journey. What are you working toward?";
-    case "profile":
-      return "Hi! Let's build your profile. Tell me about yourself — your GPA, test scores, activities, awards. Start with whatever feels easiest.";
-    case "story":
-      return "Hi! I'd love to get to know you beyond the numbers. Tell me about yourself — what makes you tick? What are you curious about?";
-    default:
-      return "Hi! I'm Sesame, your college prep advisor. I can help you build your profile, check your chances at schools, or plan your next steps. What's on your mind?";
-  }
-}
 
 function getApiEndpoint(widgetType: WidgetType): string {
   const endpoints: Record<WidgetType, string> = {

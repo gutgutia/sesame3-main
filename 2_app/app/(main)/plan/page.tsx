@@ -1,163 +1,73 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, MessageCircle, Archive, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, MessageCircle, Archive, Sparkles, ChevronDown, ChevronUp, Check, Target, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { GoalCard } from "@/components/plan/GoalCard";
-import { IdeasSuggestions } from "@/components/plan/IdeasSuggestions";
+import { Card } from "@/components/ui/Card";
 import Link from "next/link";
-import { loadProfile, saveProfile, StudentProfile, Goal, Task } from "@/lib/profile";
+import { cn } from "@/lib/utils";
 
-// Mock goals data for the prototype
-const MOCK_GOALS: Goal[] = [
-  {
-    id: "g1",
-    title: "Apply to SIMR Summer Research",
-    category: "research",
-    status: "in_progress",
-    targetDate: "Jan 15",
-    description: "Stanford Institutes of Medicine Summer Research Program",
-    tasks: [
-      { id: "t1", title: "Research program requirements", completed: true },
-      { id: "t2", title: "Draft Essay 1: 'Why Science?'", completed: true },
-      { id: "t3", title: "Draft Essay 2: Research Interests", completed: false, dueDate: "Tomorrow" },
-      { id: "t4", title: "Request transcript from counselor", completed: false, dueDate: "Jan 12" },
-      { id: "t5", title: "Submit application", completed: false, dueDate: "Jan 15" },
-    ],
-  },
-  {
-    id: "g2",
-    title: "Qualify for USAMO",
-    category: "competition",
-    status: "in_progress",
-    targetDate: "Feb 8",
-    tasks: [
-      { id: "t6", title: "Take AMC 10/12 Practice Exam", completed: false },
-      { id: "t7", title: "Review Number Theory", completed: false },
-      { id: "t8", title: "Complete Art of Problem Solving chapter", completed: false },
-    ],
-  },
-  {
-    id: "g3",
-    title: "Launch coding bootcamp for underserved students",
-    category: "leadership",
-    status: "planning",
-    description: "Free weekend coding classes at local community center",
-    tasks: [
-      { id: "t9", title: "Find venue (community center)", completed: false },
-      { id: "t10", title: "Create curriculum outline", completed: false },
-      { id: "t11", title: "Recruit volunteer instructors", completed: false },
-    ],
-  },
-  {
-    id: "g4",
-    title: "Build a personal finance app",
-    category: "project",
-    status: "parking_lot",
-    description: "App to help students manage their money",
-  },
-  {
-    id: "g5",
-    title: "Look into Intel ISEF",
-    category: "competition",
-    status: "parking_lot",
-    description: "International Science and Engineering Fair",
-  },
-  {
-    id: "g6",
-    title: "Complete college essay draft",
-    category: "other",
-    status: "completed",
-    tasks: [
-      { id: "t12", title: "Brainstorm topics", completed: true },
-      { id: "t13", title: "Write first draft", completed: true },
-      { id: "t14", title: "Get feedback from teacher", completed: true },
-    ],
-  },
-];
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface Goal {
+  id: string;
+  title: string;
+  category: string;
+  status: string;
+  priority: string | null;
+  targetDate: string | null;
+  description: string | null;
+  tasks: Array<{
+    id: string;
+    title: string;
+    completed: boolean;
+    dueDate: string | null;
+  }>;
+}
+
+// =============================================================================
+// MAIN PAGE
+// =============================================================================
 
 export default function PlanPage() {
-  const [profile, setProfile] = useState<StudentProfile>({});
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  // Load profile and goals
+  // Fetch goals
   useEffect(() => {
-    const loaded = loadProfile();
-    setProfile(loaded);
-    
-    // Use profile goals or fall back to mock data
-    if (loaded.goals && loaded.goals.length > 0) {
-      setGoals(loaded.goals);
-    } else {
-      setGoals(MOCK_GOALS);
+    async function fetchGoals() {
+      try {
+        const res = await fetch("/api/profile/goals");
+        if (res.ok) {
+          const data = await res.json();
+          setGoals(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch goals:", err);
+      } finally {
+        setIsLoading(false);
+      }
     }
-    setIsLoaded(true);
+    fetchGoals();
   }, []);
+
+  const refreshGoals = async () => {
+    const res = await fetch("/api/profile/goals");
+    if (res.ok) {
+      setGoals(await res.json());
+    }
+  };
 
   // Group goals by status
   const activeGoals = goals.filter(g => g.status === "in_progress");
-  const plannedGoals = goals.filter(g => g.status === "planning");
+  const planningGoals = goals.filter(g => g.status === "planning");
   const parkingLotGoals = goals.filter(g => g.status === "parking_lot");
   const completedGoals = goals.filter(g => g.status === "completed");
 
-  // Handlers
-  const handleTaskToggle = (goalId: string, taskId: string) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId && goal.tasks) {
-        return {
-          ...goal,
-          tasks: goal.tasks.map(task =>
-            task.id === taskId ? { ...task, completed: !task.completed } : task
-          ),
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const handleTaskAdd = (goalId: string, taskTitle: string) => {
-    setGoals(prev => prev.map(goal => {
-      if (goal.id === goalId) {
-        const newTask: Task = {
-          id: `t${Date.now()}`,
-          title: taskTitle,
-          completed: false,
-        };
-        return {
-          ...goal,
-          tasks: [...(goal.tasks || []), newTask],
-        };
-      }
-      return goal;
-    }));
-  };
-
-  const handleTitleChange = (goalId: string, newTitle: string) => {
-    setGoals(prev => prev.map(goal =>
-      goal.id === goalId ? { ...goal, title: newTitle } : goal
-    ));
-  };
-
-  const handleStatusChange = (goalId: string, newStatus: Goal["status"]) => {
-    setGoals(prev => prev.map(goal =>
-      goal.id === goalId ? { ...goal, status: newStatus } : goal
-    ));
-  };
-
-  const handleAddFromSuggestion = (title: string, category: Goal["category"], toParking: boolean) => {
-    const newGoal: Goal = {
-      id: `g${Date.now()}`,
-      title,
-      category,
-      status: toParking ? "parking_lot" : "planning",
-      tasks: [],
-    };
-    setGoals(prev => [...prev, newGoal]);
-  };
-
-  if (!isLoaded) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="w-8 h-8 border-2 border-accent-primary border-t-transparent rounded-full animate-spin" />
@@ -171,173 +81,230 @@ export default function PlanPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
         <div>
           <h1 className="font-display font-bold text-3xl text-text-main mb-2">Your Plan</h1>
-          <p className="text-text-muted">Your goals, tasks, and ideas in one place.</p>
+          <p className="text-text-muted">Goals, tasks, and your path forward.</p>
         </div>
         <Link href="/advisor?mode=planning">
           <Button>
-            <Plus className="w-4 h-4" />
-            Add Goal
+            <Sparkles className="w-4 h-4" />
+            Brainstorm Goals
           </Button>
         </Link>
       </div>
 
       {/* Subtle Chat Prompt */}
-      <Link
-        href="/advisor?mode=planning"
-        className="flex items-center gap-2 text-sm text-text-muted hover:text-accent-primary transition-colors mb-8 group"
+      <Link 
+        href="/advisor?mode=planning" 
+        className="flex items-center gap-2 text-sm text-text-muted hover:text-accent-primary transition-colors mb-6 group"
       >
         <MessageCircle className="w-4 h-4" />
-        <span>Need help with your goals? <span className="text-accent-primary group-hover:underline">Chat with your advisor →</span></span>
+        <span>Need help setting goals? <span className="text-accent-primary group-hover:underline">Chat with your advisor →</span></span>
       </Link>
 
-      {/* Active Goals */}
-      {activeGoals.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 bg-accent-primary rounded-full" />
-            <h2 className="font-display font-bold text-lg">Active</h2>
-            <span className="text-sm text-text-muted">({activeGoals.length})</span>
+      {goals.length === 0 ? (
+        <Card className="p-8 text-center">
+          <div className="w-16 h-16 bg-accent-surface rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Target className="w-8 h-8 text-accent-primary" />
           </div>
-          <div className="space-y-4">
-            {activeGoals.map((goal) => (
-              <GoalCard
-                key={goal.id}
-                goal={goal}
-                defaultExpanded={true}
-                onTaskToggle={handleTaskToggle}
-                onTaskAdd={handleTaskAdd}
-                onTitleChange={handleTitleChange}
-                onStatusChange={handleStatusChange}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Planned Goals */}
-      {plannedGoals.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 bg-blue-500 rounded-full" />
-            <h2 className="font-display font-bold text-lg">Planned</h2>
-            <span className="text-sm text-text-muted">({plannedGoals.length})</span>
-          </div>
-          <div className="space-y-4">
-            {plannedGoals.map((goal) => (
-              <GoalCard
-                key={goal.id}
-                goal={goal}
-                defaultExpanded={false}
-                onTaskToggle={handleTaskToggle}
-                onTaskAdd={handleTaskAdd}
-                onTitleChange={handleTitleChange}
-                onStatusChange={handleStatusChange}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Parking Lot */}
-      {parkingLotGoals.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Archive className="w-4 h-4 text-text-muted" />
-            <h2 className="font-display font-bold text-lg">Parking Lot</h2>
-            <span className="text-sm text-text-muted">({parkingLotGoals.length})</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {parkingLotGoals.map((goal) => (
-              <ParkingLotCard
-                key={goal.id}
-                goal={goal}
-                onStatusChange={handleStatusChange}
-              />
-            ))}
-            {/* Add to Parking Lot */}
-            <Link
-              href="/advisor?mode=planning"
-              className="border border-dashed border-border-medium rounded-xl p-4 flex items-center justify-center gap-2 text-sm text-text-muted hover:border-accent-primary hover:text-accent-primary cursor-pointer transition-colors min-h-[100px]"
-            >
+          <h2 className="font-display font-bold text-xl mb-2">No goals yet</h2>
+          <p className="text-text-muted mb-4">Start by setting some goals — summer programs, competitions, or projects.</p>
+          <Link href="/advisor?mode=planning">
+            <Button>
               <Plus className="w-4 h-4" />
-              Add Idea
-            </Link>
-          </div>
-        </section>
-      )}
+              Add Your First Goal
+            </Button>
+          </Link>
+        </Card>
+      ) : (
+        <div className="space-y-8">
+          {/* Active Goals */}
+          {activeGoals.length > 0 && (
+            <GoalSection title="In Progress" goals={activeGoals} onRefresh={refreshGoals} />
+          )}
 
-      {/* Ideas & Suggestions */}
-      <IdeasSuggestions
-        profile={profile}
-        onAddToParking={(suggestion) => handleAddFromSuggestion(suggestion.title, suggestion.category, true)}
-        onStartPlanning={(suggestion) => handleAddFromSuggestion(suggestion.title, suggestion.category, false)}
-      />
+          {/* Planning Goals */}
+          {planningGoals.length > 0 && (
+            <GoalSection title="Planning" goals={planningGoals} onRefresh={refreshGoals} />
+          )}
 
-      {/* Completed Goals */}
-      {completedGoals.length > 0 && (
-        <section className="mt-8 pt-8 border-t border-border-subtle">
-          <button
-            onClick={() => setShowCompleted(!showCompleted)}
-            className="flex items-center gap-2 mb-4 text-text-muted hover:text-text-main transition-colors"
-          >
-            <div className="w-2 h-2 bg-success-text rounded-full" />
-            <h2 className="font-display font-bold text-lg">Completed</h2>
-            <span className="text-sm">({completedGoals.length})</span>
-            {showCompleted ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          
-          {showCompleted && (
-            <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
-              {completedGoals.map((goal) => (
-                <GoalCard
-                  key={goal.id}
-                  goal={goal}
-                  defaultExpanded={false}
-                  onTaskToggle={handleTaskToggle}
-                  onTaskAdd={handleTaskAdd}
-                  onTitleChange={handleTitleChange}
-                  onStatusChange={handleStatusChange}
-                />
-              ))}
+          {/* Parking Lot */}
+          {parkingLotGoals.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Archive className="w-5 h-5 text-text-muted" />
+                <h2 className="font-display font-bold text-lg text-text-muted">Parking Lot</h2>
+                <span className="text-xs text-text-light">({parkingLotGoals.length})</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {parkingLotGoals.map(goal => (
+                  <GoalCard key={goal.id} goal={goal} minimal onRefresh={refreshGoals} />
+                ))}
+              </div>
             </div>
           )}
-        </section>
+
+          {/* Completed */}
+          {completedGoals.length > 0 && (
+            <div>
+              <button 
+                onClick={() => setShowCompleted(!showCompleted)}
+                className="flex items-center gap-2 mb-4 text-text-muted hover:text-text-main transition-colors"
+              >
+                {showCompleted ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                <span className="font-display font-bold text-lg">Completed</span>
+                <span className="text-xs text-text-light">({completedGoals.length})</span>
+              </button>
+              
+              {showCompleted && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {completedGoals.map(goal => (
+                    <GoalCard key={goal.id} goal={goal} completed onRefresh={refreshGoals} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </>
   );
 }
 
-// Parking Lot Card - simpler display
-function ParkingLotCard({ 
+// =============================================================================
+// COMPONENTS
+// =============================================================================
+
+function GoalSection({ title, goals, onRefresh }: { title: string; goals: Goal[]; onRefresh: () => void }) {
+  return (
+    <div>
+      <h2 className="font-display font-bold text-lg text-text-main mb-4">{title}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {goals.map(goal => (
+          <GoalCard key={goal.id} goal={goal} onRefresh={onRefresh} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GoalCard({ 
   goal, 
-  onStatusChange 
+  minimal = false, 
+  completed = false,
+  onRefresh 
 }: { 
-  goal: Goal;
-  onStatusChange: (goalId: string, status: Goal["status"]) => void;
+  goal: Goal; 
+  minimal?: boolean; 
+  completed?: boolean;
+  onRefresh: () => void;
 }) {
-  const categoryIcons: Record<string, string> = {
-    research: "🔬",
-    competition: "🏆",
-    leadership: "👥",
-    project: "💡",
-    other: "🎯",
+  const [expanded, setExpanded] = useState(!minimal && !completed);
+
+  const completedTasks = goal.tasks.filter(t => t.completed).length;
+  const totalTasks = goal.tasks.length;
+  const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+  const toggleTask = async (taskId: string, completed: boolean) => {
+    await fetch(`/api/profile/goals/${goal.id}/tasks/${taskId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completed }),
+    });
+    onRefresh();
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case "research": return "🔬";
+      case "competition": return "🏆";
+      case "leadership": return "👥";
+      case "project": return "🚀";
+      case "application": return "📝";
+      default: return "🎯";
+    }
   };
 
   return (
-    <div className="bg-[#F9F8F6] border border-border-subtle rounded-xl p-4 hover:bg-white hover:shadow-card transition-all">
-      <div className="flex items-start gap-2 mb-2">
-        <span className="text-sm">{categoryIcons[goal.category]}</span>
-        <h3 className="font-semibold text-sm text-text-main flex-1">{goal.title}</h3>
+    <Card className={cn(
+      "p-5 transition-all",
+      completed && "opacity-60",
+      minimal && "bg-bg-sidebar"
+    )}>
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{getCategoryIcon(goal.category)}</span>
+          <div>
+            <h3 className={cn(
+              "font-display font-bold",
+              completed && "line-through text-text-muted"
+            )}>
+              {goal.title}
+            </h3>
+            {goal.targetDate && (
+              <div className="flex items-center gap-1 text-xs text-text-muted mt-1">
+                <Calendar className="w-3 h-3" />
+                {goal.targetDate}
+              </div>
+            )}
+          </div>
+        </div>
+        {goal.tasks.length > 0 && (
+          <button 
+            onClick={() => setExpanded(!expanded)}
+            className="p-1 text-text-muted hover:text-text-main"
+          >
+            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        )}
       </div>
-      {goal.description && (
-        <p className="text-xs text-text-muted mb-3 line-clamp-2">{goal.description}</p>
+
+      {/* Progress bar */}
+      {totalTasks > 0 && (
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-text-muted mb-1">
+            <span>{completedTasks} of {totalTasks} tasks</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="w-full bg-bg-sidebar rounded-full h-2">
+            <div 
+              className="bg-accent-primary h-2 rounded-full transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
       )}
-      <button
-        onClick={() => onStatusChange(goal.id, "planning")}
-        className="text-xs text-accent-primary hover:underline font-medium"
-      >
-        Start planning →
-      </button>
-    </div>
+
+      {/* Tasks */}
+      {expanded && goal.tasks.length > 0 && (
+        <div className="space-y-2 pt-3 border-t border-border-subtle">
+          {goal.tasks.map(task => (
+            <label 
+              key={task.id}
+              className="flex items-center gap-3 py-1.5 cursor-pointer group"
+            >
+              <button
+                onClick={() => toggleTask(task.id, !task.completed)}
+                className={cn(
+                  "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                  task.completed 
+                    ? "bg-accent-primary border-accent-primary text-white" 
+                    : "border-border-medium hover:border-accent-primary"
+                )}
+              >
+                {task.completed && <Check className="w-3 h-3" />}
+              </button>
+              <span className={cn(
+                "text-sm flex-1",
+                task.completed && "line-through text-text-muted"
+              )}>
+                {task.title}
+              </span>
+              {task.dueDate && (
+                <span className="text-xs text-text-light">{task.dueDate}</span>
+              )}
+            </label>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }

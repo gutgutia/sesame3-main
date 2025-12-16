@@ -11,7 +11,9 @@
     "db:push": "dotenv -e .env -- prisma db push",
     "db:migrate": "dotenv -e .env -- prisma migrate dev",
     "db:studio": "dotenv -e .env -- prisma studio",
-    "db:seed": "dotenv -e .env -- tsx prisma/seed.ts"
+    "db:seed": "dotenv -e .env -- tsx prisma/seed.ts",
+    "db:seed-test-users": "dotenv -e .env -- tsx scripts/seed-test-users.ts",
+    "db:reset-test-user": "dotenv -e .env -- tsx scripts/reset-test-user.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.56",

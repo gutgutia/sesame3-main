@@ -2,11 +2,20 @@
 // Currently returns mock data for development
 // Will be replaced with real Supabase auth when ready
 
+import { cookies } from "next/headers";
 import { prisma } from "./db";
 
-// Development: Use a fixed user ID for testing
-// Production: Will get user from Supabase session
-const DEV_USER_ID = "dev-user-001";
+// Default dev user if none selected
+const DEFAULT_DEV_USER_ID = "test-user-new";
+const DEV_USER_COOKIE = "sesame_dev_user_id";
+
+// Test user definitions
+const TEST_USERS: Record<string, { email: string; name: string }> = {
+  "test-user-new": { email: "new@test.sesame.com", name: "Alex (New)" },
+  "test-user-onboarded": { email: "onboarded@test.sesame.com", name: "Jordan (Onboarded)" },
+  "test-user-building": { email: "building@test.sesame.com", name: "Sarah (Building)" },
+  "test-user-complete": { email: "complete@test.sesame.com", name: "Max (Complete)" },
+};
 
 export interface AuthUser {
   id: string;
@@ -16,20 +25,33 @@ export interface AuthUser {
 
 /**
  * Get the current authenticated user
- * For development: returns a mock user
+ * For development: reads from cookie or uses default
  * For production: will validate Supabase session
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
-  // TODO: Replace with real Supabase auth
+  // TODO: Replace with real Supabase auth in production
   // const supabase = await createClient();
   // const { data: { user } } = await supabase.auth.getUser();
   // if (!user) return null;
   
-  // For development, return mock user
+  // For development, check for dev user cookie
+  const cookieStore = await cookies();
+  const devUserId = cookieStore.get(DEV_USER_COOKIE)?.value || DEFAULT_DEV_USER_ID;
+  
+  const userInfo = TEST_USERS[devUserId];
+  if (!userInfo) {
+    // Unknown user ID, fall back to default
+    return {
+      id: DEFAULT_DEV_USER_ID,
+      email: TEST_USERS[DEFAULT_DEV_USER_ID].email,
+      name: TEST_USERS[DEFAULT_DEV_USER_ID].name,
+    };
+  }
+  
   return {
-    id: DEV_USER_ID,
-    email: "dev@sesame.com",
-    name: "Dev User",
+    id: devUserId,
+    email: userInfo.email,
+    name: userInfo.name,
   };
 }
 

@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
 function AdvisorContent() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q");
-  const mode = searchParams.get("mode") as "general" | "chances" | "schools" | "planning" | "profile" | "story" || "general";
+  const mode = searchParams.get("mode") as "general" | "onboarding" | "chances" | "schools" | "planning" | "profile" | "story" || "general";
   
   const [profile, setProfile] = useState<StudentProfile>({});
   const [targetSchool, setTargetSchool] = useState<string | undefined>();
