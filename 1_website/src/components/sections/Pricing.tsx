@@ -18,7 +18,7 @@ const plans = [
       { text: "Essay review", included: false },
       { text: "Shared access", included: false },
     ],
-    cta: "Get Started Free",
+    cta: "Join Waitlist",
     ctaVariant: "secondary" as const,
   },
   {
@@ -39,7 +39,7 @@ const plans = [
       { text: "Essay review & feedback", included: true },
       { text: "Share with parents & counselors", included: true },
     ],
-    cta: "Start Premium",
+    cta: "Join Waitlist",
     ctaVariant: "primary" as const,
     annual: "Or $149/year (save 2 months)",
   },
@@ -54,7 +54,7 @@ const plans = [
       { text: "No monthly payments", included: true },
       { text: "Application season covered", included: true },
     ],
-    cta: "Get Senior Pass",
+    cta: "Join Waitlist",
     ctaVariant: "secondary" as const,
   },
 ];
@@ -66,13 +66,13 @@ export function Pricing() {
         {/* Header */}
         <div className="text-center mb-16">
           <p className="text-xs font-bold uppercase tracking-widest text-[var(--accent-primary)] mb-4">
-            Pricing
+            Planned Pricing
           </p>
           <h2 className="font-['Satoshi'] text-4xl font-bold mb-4">
-            Start free, upgrade when ready
+            Simple, transparent pricing
           </h2>
           <p className="text-lg text-[var(--text-muted)]">
-            No credit card required. Use the free tier forever.
+            Here&apos;s what we&apos;re planning. Early waitlist members may get special perks.
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export function Pricing() {
               {/* CTA */}
               <Button
                 variant={plan.featured ? "white" : plan.ctaVariant}
-                href="#"
+                href="#waitlist"
                 className="w-full"
               >
                 {plan.cta}
@@ -154,7 +154,7 @@ export function Pricing() {
         {/* Note */}
         <div className="flex items-center justify-center gap-2 text-[var(--text-muted)] text-sm">
           <Info className="w-4 h-4 text-[var(--accent-primary)]" />
-          <p>Not sure yet? Start free and upgrade anytime. Your data carries over.</p>
+          <p>Join the waitlist to be notified when we launch. Early members may get exclusive perks.</p>
         </div>
       </div>
     </section>

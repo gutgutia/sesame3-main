@@ -1,0 +1,21 @@
+{
+  "name": "Sesame3",
+  "short_name": "Sesame3",
+  "description": "Your AI College Counselor",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDFCF9",
+  "theme_color": "#12756A",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo-mark.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

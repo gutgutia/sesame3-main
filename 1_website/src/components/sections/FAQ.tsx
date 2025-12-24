@@ -20,8 +20,12 @@ const faqs = [
     answer: "Our estimates are based on publicly available admission data and common admit profiles. They're directional guidance — not guarantees — designed to help you build a realistic, balanced school list.",
   },
   {
-    question: "Is it really free?",
-    answer: "Yes, you can get started completely free. We'll offer optional premium features in the future, but the core experience — advisor, chances, school list, roadmap — is free.",
+    question: "When is Sesame3 launching?",
+    answer: "We're launching soon! Join the waitlist to be the first to know. Early waitlist members may get exclusive perks and early access.",
+  },
+  {
+    question: "Will there be a free option?",
+    answer: "Yes, we're planning a generous free tier. The core experience — advisor, chances, school list, roadmap — will be free. Premium features will be available for those who want more.",
   },
 ];
 

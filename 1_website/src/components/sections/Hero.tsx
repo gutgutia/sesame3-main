@@ -1,16 +1,42 @@
 "use client";
 
-import { Sparkles, MessageCircle, PlayCircle } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ArrowRight, PlayCircle } from "lucide-react";
 import { Button } from "../ui/Button";
 
 export function Hero() {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    
+    setLoading(true);
+    try {
+      const response = await fetch("https://formspree.io/f/mojazpwv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (response.ok) {
+        setSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <header className="pt-40 pb-24 text-center">
       <div className="container">
         {/* Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-full text-sm font-semibold text-[var(--accent-primary)] mb-7">
           <Sparkles className="w-3.5 h-3.5" />
-          AI-Powered College Counseling
+          Coming Soon
         </div>
 
         {/* Title */}
@@ -21,19 +47,41 @@ export function Hero() {
 
         {/* Subtitle */}
         <p className="text-xl text-[var(--text-muted)] max-w-xl mx-auto mb-10 leading-relaxed">
-          Get expert guidance, honest chance assessments, and a clear roadmap — all through a conversation with an AI that knows you.
+          Expert guidance, honest chance assessments, and a clear roadmap — all through a conversation with an AI that knows you.
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-16">
-          <Button variant="primary" href="#">
-            <MessageCircle className="w-4 h-4" />
-            Start Chatting Free
-          </Button>
-          <Button variant="secondary" href="#how">
-            <PlayCircle className="w-4 h-4" />
-            See How It Works
-          </Button>
+        {/* Email Collection */}
+        <div id="waitlist" className="max-w-md mx-auto mb-6">
+          {!submitted ? (
+            <form onSubmit={handleSubmit} className="flex gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="flex-1 px-5 py-3.5 rounded-full border border-[var(--border)] bg-white text-[var(--text-main)] placeholder:text-[var(--text-light)] focus:outline-none focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20 transition-all"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--text-main)] text-white font-semibold rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              >
+                {loading ? "Joining..." : "Join Waitlist"}
+                {!loading && <ArrowRight className="w-4 h-4" />}
+              </button>
+            </form>
+          ) : (
+            <div className="bg-[var(--accent-surface)] border border-[var(--accent-border)] rounded-2xl px-6 py-4 text-[var(--accent-primary)] font-medium">
+              🎉 You&apos;re on the list! We&apos;ll be in touch soon.
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-center gap-4 mb-16">
+          <p className="text-sm text-[var(--text-light)]">
+            Be the first to know when we launch. No spam, ever.
+          </p>
         </div>
 
         {/* Screenshot - Responsive container */}
