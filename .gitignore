@@ -1,3 +1,7 @@
+# Separate repositories (have their own git repos)
+1_website/
+2_app/
+
 # Dependencies
 node_modules/
 
